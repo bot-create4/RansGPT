@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RansGPT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app-layout" class="app-layout">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <i class="fa-solid fa-plus"></i>
+                    New Chat
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <p class="recent-title">Recent</p>
+                <ul id="recent-chats-list" class="recent-chats-list">
+                    </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-link"><i class="fa-regular fa-circle-question"></i> Help</a>
+                <a href="#" class="sidebar-link"><i class="fa-solid fa-gear"></i> Settings</a>
+            </div>
+        </aside>
+
+        <main id="main-content" class="main-content">
+            <header class="main-header">
+                <button id="menu-toggle" class="menu-toggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <span class="header-title">RansGPT</span>
+            </header>
+
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="initial-view">
+                        <header class="chat-header">
+                            <h1>Hello, <span class="gradient-text">there</span></h1>
+                            <p>How can I help you today?</p>
+                        </header>
+                        </div>
+                </div>
+            </div>
+
+            <footer class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="text-input" placeholder="Ask RansGPT...">
+                    <div class="buttons-default">
+                        <button id="theme-toggle-btn" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+                        <button aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
+                    </div>
+                    <button id="send-btn" aria-label="Send Message"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button id="stop-btn" aria-label="Stop Generation"><i class="fa-solid fa-stop"></i></button>
+                </div>
+                <p class="disclaimer">RansGPT can make mistakes, so double-check it.</p>
+            </footer>
+        </main>
+    </div>
+
+    <div id="feedback-popup" class="feedback-popup">
+        <button id="copy-btn"><i class="fa-regular fa-copy"></i> Copy</button>
+        <button id="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
+        <button id="dislike-btn"><i class="fa-regular fa-thumbs-down"></i> Dislike</button>
+        <button id="report-btn"><i class="fa-regular fa-flag"></i> Report</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

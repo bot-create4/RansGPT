@@ -1,0 +1,201 @@
+/* --- මූලික සැකසුම් සහ විචල්‍යයන් --- */
+:root {
+    /* Dark Mode වර්ණ */
+    --bg-color: #0F172A;
+    --sidebar-bg: #1E293B;
+    --main-bg: #0F172A;
+    --input-bg-color: #1E293B;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --gradient-start: #818cf8;
+    --gradient-end: #4f46e5;
+    --icon-bg-hover: rgba(255, 255, 255, 0.1);
+    --send-btn-bg: #818cf8;
+    --user-msg-bg: #334155;
+    --bot-msg-bg: #1E293B;
+    --bot-icon-bg: var(--gradient-start);
+    --user-icon-bg: #475569;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --popup-bg-color: #2D3A4F;
+    --border-color: #334155;
+}
+
+body.light-mode {
+    /* Light Mode වර්ණ */
+    --bg-color: #f7f7f8;
+    --sidebar-bg: #e2e8f0;
+    --main-bg: #ffffff;
+    --input-bg-color: #f3f4f6;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --icon-bg-hover: rgba(0, 0, 0, 0.05);
+    --send-btn-bg: #4f46e5;
+    --user-msg-bg: #e0f2fe;
+    --bot-msg-bg: #f3f4f6;
+    --bot-icon-bg: var(--gradient-end);
+    --user-icon-bg: #bfdbfe;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --popup-bg-color: #ffffff;
+    --border-color: #d1d5db;
+}
+
+body {
+    margin: 0;
+    font-family: 'Google Sans', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* --- ප්‍රධාන Layout එක --- */
+.app-layout {
+    display: flex;
+    height: 100vh;
+}
+
+/* --- Sidebar එක --- */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    height: 100%;
+    box-sizing: border-box;
+    transition: transform 0.3s ease-in-out;
+    flex-shrink: 0;
+}
+.sidebar-header { margin-bottom: 1.5rem; }
+.new-chat-btn {
+    background-color: var(--input-bg-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+.new-chat-btn:hover { background-color: var(--icon-bg-hover); }
+
+.sidebar-content { flex-grow: 1; overflow-y: auto; }
+.recent-title { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+.recent-chats-list { list-style: none; padding: 0; margin: 0; }
+
+.sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; }
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+.sidebar-link:hover { background-color: var(--icon-bg-hover); color: var(--text-primary); }
+
+/* --- ප්‍රධාන Content එක --- */
+.main-content {
+    flex-grow: 1;
+    background-color: var(--main-bg);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: margin-left 0.3s ease-in-out;
+}
+.main-header {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    gap: 1rem;
+}
+.menu-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+}
+.menu-toggle:hover { background-color: var(--icon-bg-hover); }
+.header-title { color: var(--text-secondary); }
+
+.chat-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 1rem;
+}
+.chat-messages { flex-grow: 1; overflow-y: auto; }
+.initial-view, .chat-header { /* Style පෙර පරිදිම */ }
+
+/* --- Input Area එක --- */
+.input-area {
+    padding: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* අනෙකුත් සියලු style (message-wrapper, input-wrapper, pop-up etc.) පෙර පරිදිම පවතී */
+.message-wrapper { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; max-width: 90%; position: relative; }
+.message-wrapper.user { margin-left: auto; flex-direction: row-reverse; }
+.icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; color: white; }
+.user-icon { background-color: var(--user-icon-bg); color: var(--bg-color); font-weight: bold; }
+.bot-icon { background: var(--bot-icon-bg); }
+.message { padding: 0.8rem 1.2rem; border-radius: 18px; line-height: 1.6; background-color: var(--bot-msg-bg); white-space: pre-wrap; flex-grow: 1; }
+.message.user { background-color: var(--user-msg-bg); }
+body.light-mode .message.user { color: #1e3a8a; }
+.input-wrapper { position: relative; display: flex; align-items: center; background-color: var(--input-bg-color); border-radius: 28px; padding: 4px; box-shadow: 0 2px 8px var(--shadow-color); }
+.input-wrapper input { flex-grow: 1; border: none; background: transparent; padding: 14px 20px; font-size: 1rem; color: var(--text-primary); outline: none; }
+.input-wrapper input::placeholder { color: var(--text-secondary); }
+.input-wrapper .buttons-default { display: flex; gap: 8px; padding-right: 12px; }
+.input-wrapper button { background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s ease, color 0.2s ease; }
+.input-wrapper button:hover { background-color: var(--icon-bg-hover); }
+#send-btn { display: none; background-color: var(--send-btn-bg); color: white; margin-right: 8px; }
+#send-btn:hover { background-color: var(--gradient-end); }
+#stop-btn { display: none; background-color: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); margin-right: 8px; }
+#stop-btn:hover { background-color: var(--icon-bg-hover); border-color: var(--text-primary); }
+.disclaimer { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; }
+.loading-animation { display: inline-block; width: 10px; height: 20px; background-color: var(--text-primary); border-radius: 3px; animation: blink 1.2s infinite ease-in-out; }
+@keyframes blink { 0%, 100% { opacity: 0.2; transform: scaleY(0.8); } 50% { opacity: 1; transform: scaleY(1); } }
+.feedback-popup { position: fixed; background-color: var(--popup-bg-color); border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); display: flex; flex-direction: column; padding: 8px; z-index: 1000; opacity: 0; visibility: hidden; transform: scale(0.95); transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; }
+.feedback-popup.show { opacity: 1; visibility: visible; transform: scale(1); }
+.feedback-popup button { background: none; border: none; color: var(--text-primary); padding: 10px 15px; text-align: left; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; border-radius: 6px; transition: background-color 0.2s ease, color 0.2s ease; }
+.feedback-popup button:hover { background-color: var(--icon-bg-hover); color: var(--text-primary); }
+
+/* --- Responsive ගැලපීම් --- */
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 1001;
+        transform: translateX(-100%); /* මුලින්ම සඟවන්න */
+    }
+    #app-layout.sidebar-open .sidebar {
+        transform: translateX(0); /* Sidebar එක පෙන්වීම */
+    }
+    .menu-toggle { display: block; } /* Mobile එකේදී පමණක් පෙන්වන්න */
+}
+
+@media (min-width: 769px) {
+    .menu-toggle { display: none; } /* Desktop එකේදී සඟවන්න */
+    #app-layout.sidebar-closed .sidebar {
+        transform: translateX(-100%);
+    }
+     #app-layout.sidebar-closed .main-content {
+        margin-left: -260px; /* Sidebar එකේ පළල */
+    }
+}
