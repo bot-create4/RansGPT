@@ -19,6 +19,9 @@
                     <i class="fa-solid fa-plus"></i>
                     New Chat
                 </button>
+                <button id="sidebar-close-btn" class="menu-toggle">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
             </div>
             <div class="sidebar-content">
                 <p class="recent-title">Recent</p>
@@ -46,16 +49,17 @@
                             <h1>Hello, <span class="gradient-text">there</span></h1>
                             <p>How can I help you today?</p>
                         </header>
-                        </div>
+                    </div>
                 </div>
             </div>
 
             <footer class="input-area">
                 <div class="input-wrapper">
                     <input type="text" id="text-input" placeholder="Ask RansGPT...">
+                    <input type="file" id="file-input" hidden multiple>
                     <div class="buttons-default">
                         <button id="theme-toggle-btn" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-                        <button aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
+                        <button id="attach-file-btn" aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
                     </div>
                     <button id="send-btn" aria-label="Send Message"><i class="fa-solid fa-arrow-up"></i></button>
                     <button id="stop-btn" aria-label="Stop Generation"><i class="fa-solid fa-stop"></i></button>
@@ -63,6 +67,8 @@
                 <p class="disclaimer">RansGPT can make mistakes, so double-check it.</p>
             </footer>
         </main>
+        
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
     </div>
 
     <div id="feedback-popup" class="feedback-popup">
