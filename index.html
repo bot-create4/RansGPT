@@ -1,96 +1,178 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RansGPT - A Gemini Clone</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Ultimate Direct Link Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        /* --- Color Palette Definition (CSS Variables) --- */
+        :root {
+            --bg-color: #f0f2f5;
+            --surface-color: #ffffff;
+            --text-primary: #1c1e21;
+            --text-secondary: #5f6368;
+            --primary-color: #1a73e8;
+            --primary-hover: #1558b8;
+            --border-color: #ddd;
+            --input-bg: #e8f0fe;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --primary-color: #42a5f5;
+            --primary-hover: #64b5f6;
+            --border-color: #4d4d4d;
+            --input-bg: #2c2c2c;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+        /* ----------------------------------------------- */
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .theme-toggle-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 { color: var(--primary-color); margin-bottom: 10px; }
+        p { color: var(--text-secondary); margin-bottom: 30px; }
+
+        .input-area input {
+            width: 100%; padding: 15px; border: 2px solid var(--border-color);
+            border-radius: 8px; font-size: 16px; box-sizing: border-box;
+            background-color: var(--bg-color); color: var(--text-primary);
+            transition: border-color 0.3s;
+        }
+        .input-area input:focus { outline: none; border-color: var(--primary-color); }
+        
+        #messageBox { margin-top: 15px; font-weight: 600; min-height: 24px; }
+        #messageBox.success { color: #1e8e3e; }
+        #messageBox.error { color: #d93025; }
+        body.dark-mode #messageBox.success { color: #69f0ae; }
+        body.dark-mode #messageBox.error { color: #ff8a80; }
+
+        .generate-btn {
+            background-color: var(--primary-color); color: white; padding: 15px 30px; border: none;
+            border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer;
+            margin-top: 10px; transition: background-color 0.3s; position: relative;
+        }
+        .generate-btn:hover { background-color: var(--primary-hover); }
+        .generate-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
+        .generate-btn.loading::after {
+            content: ''; position: absolute; width: 20px; height: 20px; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .result-area { margin-top: 20px; opacity: 0; visibility: hidden; transition: all 0.5s; max-height: 0; }
+        .result-area.visible { opacity: 1; visibility: visible; max-height: 500px; }
+        .result-box { display: flex; align-items: center; background-color: var(--input-bg);
+            border: 1px dashed var(--primary-color); border-radius: 8px; padding: 10px; }
+        #outputLink { flex-grow: 1; padding: 10px; border: none; background: transparent;
+            font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-actions { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .action-btn { background-color: var(--text-secondary); color: white; border: none; padding: 10px 20px;
+            border-radius: 6px; cursor: pointer; font-weight: 600; transition: background-color 0.2s; }
+        .action-btn.copy { background-color: #1e8e3e; }
+        .action-btn.download { background-color: var(--primary-color); }
+        .action-btn.download:hover { background-color: var(--primary-hover); }
+        #qrCodeContainer { margin-top: 20px; }
+        #qrCodeContainer canvas { border: 5px solid var(--surface-color); border-radius: 8px; box-shadow: 0 4px 10px var(--shadow-color); }
+        
+        /* --- NEW: Footer Credit Style --- */
+        .footer-credit {
+            margin-top: 40px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
 </head>
 <body>
-
-    <div id="app-layout" class="app-layout">
-        <aside id="sidebar" class="sidebar">
-            <div class="sidebar-header">
-                <button id="menu-toggle-inside" class="menu-toggle">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-            <button id="new-chat-btn" class="new-chat-btn">
-                <i class="fa-solid fa-plus"></i>
-                New Chat
-            </button>
-            <div class="sidebar-content">
-                <p class="recent-title">Recent</p>
-                <ul id="recent-chats-list" class="recent-chats-list">
-                    </ul>
-            </div>
-            <div class="sidebar-footer">
-                <a href="#" class="sidebar-link"><i class="fa-regular fa-circle-question"></i> Help</a>
-                <a href="#" class="sidebar-link"><i class="fa-solid fa-gear"></i> Settings</a>
-            </div>
-        </aside>
-
-        <main id="main-content" class="main-content">
-            <header class="main-header">
-                <div class="header-left">
-                    <button id="menu-toggle-outside" class="menu-toggle">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                    <span class="header-title">RansGPT</span>
-                </div>
-                <div class="header-right">
-                    <button id="theme-toggle-btn" class="menu-toggle"><i class="fa-solid fa-sun"></i></button>
-                </div>
-            </header>
-
-            <div class="chat-container">
-                <div id="chat-messages" class="chat-messages">
-                    <div class="initial-view">
-                        <div class="welcome-header">
-                            <h1 class="gradient-text">Hello</h1>
-                            <p>How can I help you today?</p>
-                        </div>
-                        <div class="suggestions-grid">
-                            <div class="suggestion-card" data-prompt="Design a home office setup for remote work under $500.">
-                                <p>Design a home office setup for remote work</p>
-                                <div class="card-icon"><i class="fa-solid fa-lightbulb"></i></div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="How can I level up my web development expertise in 2025?">
-                                <p>How can I level up my web dev expertise?</p>
-                                <div class="card-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="Suggest some useful tools for debugging JavaScript code.">
-                                <p>Suggest tools for debugging JavaScript code</p>
-                                <div class="card-icon"><i class="fa-solid fa-code"></i></div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="Create a React JS component for a simple todo list app.">
-                                <p>Create a React JS component for a todo list</p>
-                                <div class="card-icon"><i class="fa-brands fa-react"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <footer class="input-area">
-                <div class="input-wrapper">
-                    <input type="text" id="text-input" placeholder="Enter a prompt here">
-                    <input type="file" id="file-input" hidden multiple accept="image/*">
-                    <button id="attach-file-btn" class="input-action-btn" aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
-                    <button id="send-btn" class="input-action-btn" aria-label="Send Message"><i class="fa-solid fa-arrow-up"></i></button>
-                </div>
-                <p class="disclaimer">RansGPT can make mistakes. Consider checking important information.</p>
-            </footer>
-        </main>
-        
-        <div id="sidebar-overlay" class="sidebar-overlay"></div>
-    </div>
+    <button id="themeToggle" class="theme-toggle-button">🌓</button>
     
-    <script src="script.js"></script>
+    <div class="container">
+        <h1>Ultimate Link Generator 🚀</h1>
+        <p>Supports GDrive, Dropbox, OneDrive, Yandex & MediaFire.</p>
+        <div class="input-area">
+            <input type="text" id="urlInput" placeholder="Paste your share link here...">
+        </div>
+        <div id="messageBox"></div>
+        <button id="generateBtn" class="generate-btn">Generate Link</button>
+        <div id="resultContainer" class="result-area">
+            <div class="result-box">
+                <input type="text" id="outputLink" readonly>
+            </div>
+            <div class="result-actions">
+                <button id="downloadBtn" class="action-btn download">Download Now</button>
+                <button id="copyBtn" class="action-btn copy">Copy</button>
+                <button id="qrBtn" class="action-btn">Show QR Code</button>
+            </div>
+            <div id="qrCodeContainer"></div>
+        </div>
+
+        <div class="footer-credit">
+            Made by Ransara Devnath
+        </div>
+    </div>
+
+    <script>
+        // The JavaScript part remains exactly the same.
+        // All the previous logic for theme toggling and link generation is here.
+        // ... (No changes to the script) ...
+        const themeToggle = document.getElementById('themeToggle'); const body = document.body;
+        function applySavedTheme() { const savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark') { body.classList.add('dark-mode'); themeToggle.textContent = '☀️'; } else { body.classList.remove('dark-mode'); themeToggle.textContent = '🌓'; } }
+        themeToggle.addEventListener('click', () => { body.classList.toggle('dark-mode'); if (body.classList.contains('dark-mode')) { localStorage.setItem('theme', 'dark'); themeToggle.textContent = '☀️'; } else { localStorage.setItem('theme', 'light'); themeToggle.textContent = '🌓'; } });
+        document.addEventListener('DOMContentLoaded', applySavedTheme);
+        const urlInput = document.getElementById('urlInput'); const generateBtn = document.getElementById('generateBtn'); const resultContainer = document.getElementById('resultContainer'); const outputLink = document.getElementById('outputLink'); const copyBtn = document.getElementById('copyBtn'); const qrBtn = document.getElementById('qrBtn'); const qrCodeContainer = document.getElementById('qrCodeContainer'); const messageBox = document.getElementById('messageBox'); const downloadBtn = document.getElementById('downloadBtn');
+        const CORS_PROXY = "https://corsproxy.io/?";
+        function toBase64Url(str) { return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''); }
+        function showMessage(text, type) { messageBox.textContent = text; messageBox.className = type; }
+        generateBtn.addEventListener('click', async () => { const originalUrl = urlInput.value.trim(); let directLink = ''; generateBtn.classList.add('loading'); generateBtn.disabled = true; resultContainer.classList.remove('visible'); qrCodeContainer.innerHTML = ''; showMessage('', ''); try { if (originalUrl === '') throw new Error('Please paste a URL first!'); if (originalUrl.includes('drive.google.com')) { const match = originalUrl.match(/d\/(.+?)(?:\/|\?|$)/) || originalUrl.match(/id=(.+?)(?:&|$)/); if (match && match[1]) directLink = `https://drive.google.com/uc?export=download&id=${match[1]}`; } else if (originalUrl.includes('dropbox.com')) { if (originalUrl.includes('?dl=0')) directLink = originalUrl.replace('?dl=0', '?dl=1'); else if (!originalUrl.includes('?dl=1')) directLink = originalUrl + (originalUrl.includes('?') ? '&dl=1' : '?dl=1'); else directLink = originalUrl; } else if (originalUrl.includes('1drv.ms') || originalUrl.includes('onedrive.live.com')) { const encodedUrl = toBase64Url(originalUrl); directLink = `https://api.onedrive.com/v1.0/shares/u!${encodedUrl}/root/content`; } else if (originalUrl.includes('disk.yandex.')) { const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(originalUrl)}`; const response = await fetch(apiUrl); if (!response.ok) throw new Error('Failed to get Yandex link.'); const data = await response.json(); directLink = data.href; } else if (originalUrl.includes('mediafire.com/file/')) { const response = await fetch(`${CORS_PROXY}${encodeURIComponent(originalUrl)}`); const html = await response.text(); const doc = new DOMParser().parseFromString(html, 'text/html'); const downloadButton = doc.querySelector('#downloadButton .input'); if (downloadButton) directLink = downloadButton.href; } if (directLink) { outputLink.value = directLink; resultContainer.classList.add('visible'); showMessage('✅ Success! Your direct link is ready.', 'success'); } else { throw new Error('Invalid or unsupported URL. Please check the link and try again.'); } } catch (error) { showMessage(`❌ ${error.message}`, 'error'); } finally { generateBtn.classList.remove('loading'); generateBtn.disabled = false; } });
+        copyBtn.addEventListener('click', () => { navigator.clipboard.writeText(outputLink.value).then(() => { copyBtn.textContent = 'Copied!'; setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000); }); });
+        qrBtn.addEventListener('click', () => { const link = outputLink.value; qrCodeContainer.innerHTML = ''; if (link) { const canvas = document.createElement('canvas'); qrCodeContainer.appendChild(canvas); QRCode.toCanvas(canvas, link, { width: 200, margin: 1 }, function (error) { if (error) console.error(error); }); } });
+        downloadBtn.addEventListener('click', () => { const link = outputLink.value; if (!link) { showMessage('❌ No link to download!', 'error'); return; } const a = document.createElement('a'); a.href = link; a.download = ''; document.body.appendChild(a); a.click(); document.body.removeChild(a); });
+    </script>
 </body>
 </html>
