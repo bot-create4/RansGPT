@@ -155,20 +155,20 @@
             <h2>Create Your QR Code</h2>
             
             <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('text')">📄 Text/URL</button>
-                <button class="tab-button" onclick="showTab('wifi')">🌐 Wi-Fi</button>
-                <button class="tab-button" onclick="showTab('vcard')">📇 vCard</button>
-                <button class="tab-button" onclick="showTab('call')">📞 Call</button>
-                <button class="tab-button" onclick="showTab('sms')">💬 SMS</button>
-                <button class="tab-button" onclick="showTab('email')">✉️ Email</button>
+                <button class="tab-button active" onclick="showTab(event, 'text')">📄 Text/URL</button>
+                <button class="tab-button" onclick="showTab(event, 'wifi')">🌐 Wi-Fi</button>
+                <button class="tab-button" onclick="showTab(event, 'vcard')">📇 vCard</button>
+                <button class="tab-button" onclick="showTab(event, 'call')">📞 Call</button>
+                <button class="tab-button" onclick="showTab(event, 'sms')">💬 SMS</button>
+                <button class="tab-button" onclick="showTab(event, 'email')">✉️ Email</button>
             </div>
 
             <div id="text" class="tab-content active"><div class="form-group"><label for="text-input">Your Text or URL</label><textarea id="text-input" rows="4">https://google.com</textarea></div></div>
-            <div id="wifi" class="tab-content"></div>
-            <div id="vcard" class="tab-content"></div>
-            <div id="call" class="tab-content"></div>
-            <div id="sms" class="tab-content"></div>
-            <div id="email" class="tab-content"></div>
+            <div id="wifi" class="tab-content"><div class="form-group"><label for="wifi-ssid">Network Name (SSID)</label><input type="text" id="wifi-ssid" placeholder="My Home Wi-Fi"></div><div class="form-group"><label for="wifi-password">Password</label><input type="password" id="wifi-password" placeholder="MySecretPassword"></div><div class="form-group"><label for="wifi-encryption">Encryption</label><select id="wifi-encryption"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option></select></div></div>
+            <div id="vcard" class="tab-content"><div class="form-group"><label for="vcard-name">Full Name</label><input type="text" id="vcard-name" placeholder="Ransara Devnath"></div><div class="form-group"><label for="vcard-phone">Phone Number</label><input type="tel" id="vcard-phone" placeholder="+94 77 123 4567"></div><div class="form-group"><label for="vcard-email">Email</label><input type="email" id="vcard-email" placeholder="ransara@example.com"></div></div>
+            <div id="call" class="tab-content"><div class="form-group"><label for="call-phone">Phone Number</label><input type="tel" id="call-phone" placeholder="+94 77 123 4567"></div></div>
+            <div id="sms" class="tab-content"><div class="form-group"><label for="sms-phone">Phone Number</label><input type="tel" id="sms-phone" placeholder="+94 77 123 4567"></div><div class="form-group"><label for="sms-message">Message</label><textarea id="sms-message" rows="3">Hello!</textarea></div></div>
+            <div id="email" class="tab-content"><div class="form-group"><label for="email-to">Recipient Email</label><input type="email" id="email-to" placeholder="friend@example.com"></div><div class="form-group"><label for="email-subject">Subject</label><input type="text" id="email-subject" placeholder="Greetings"></div><div class="form-group"><label for="email-body">Message</label><textarea id="email-body" rows="3">Hi there,</textarea></div></div>
 
             <h2>Customize Appearance</h2>
             <div class="form-group inline-group">
@@ -192,35 +192,83 @@
     </div>
     
     <script>
-        // All previous JS logic for tabs, QR generation, etc. goes here.
-        // Adding the theme toggle logic.
+        let qrCode; let activeTab = 'text'; let logoFile = null;
+
+        // --- THEME TOGGLE LOGIC ---
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
-
         function applySavedTheme() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
+                document.getElementById('dot-color').value = '#ffffff';
+                document.getElementById('bg-color').value = '#1e1e1e';
             } else {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
+                document.getElementById('dot-color').value = '#0f172a';
+                document.getElementById('bg-color').value = '#ffffff';
             }
         }
-
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
                 themeToggle.textContent = '☀️';
+                document.getElementById('dot-color').value = '#ffffff';
+                document.getElementById('bg-color').value = '#1e1e1e';
             } else {
                 localStorage.setItem('theme', 'light');
                 themeToggle.textContent = '🌙';
+                document.getElementById('dot-color').value = '#0f172a';
+                document.getElementById('bg-color').value = '#ffffff';
             }
         });
-
         document.addEventListener('DOMContentLoaded', applySavedTheme);
-        // ... (The rest of the QR code generation script)
+
+        // --- CORE QR CODE LOGIC ---
+        function showTab(event, tabName) {
+            document.querySelectorAll('.tab-content, .tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+            activeTab = tabName;
+        }
+        
+        document.getElementById('logo-upload').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) { const reader = new FileReader(); reader.onload = (e) => { logoFile = e.target.result; }; reader.readAsDataURL(file);
+            } else { logoFile = null; }
+        });
+
+        function generateQRCode() {
+            let data = '';
+            if (activeTab === 'text') { data = document.getElementById('text-input').value; }
+            else if (activeTab === 'wifi') { const ssid = document.getElementById('wifi-ssid').value; const password = document.getElementById('wifi-password').value; const encryption = document.getElementById('wifi-encryption').value; data = `WIFI:T:${encryption};S:${ssid};P:${password};;`; }
+            else if (activeTab === 'vcard') { const name = document.getElementById('vcard-name').value; const phone = document.getElementById('vcard-phone').value; const email = document.getElementById('vcard-email').value; data = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEMAIL:${email}\nEND:VCARD`; }
+            else if (activeTab === 'call') { const phone = document.getElementById('call-phone').value; data = `tel:${phone}`; }
+            else if (activeTab === 'sms') { const phone = document.getElementById('sms-phone').value; const message = document.getElementById('sms-message').value; data = `SMSTO:${phone}:${message}`; }
+            else if (activeTab === 'email') { const email = document.getElementById('email-to').value; const subject = document.getElementById('email-subject').value; const body = document.getElementById('email-body').value; data = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
+
+            if (!data) { alert('Please fill in the required fields!'); return; }
+            
+            const dotColor = document.getElementById('dot-color').value; const bgColor = document.getElementById('bg-color').value; const dotStyle = document.getElementById('dot-style').value;
+            qrCode = new QRCodeStyling({
+                width: 280, height: 280, data: data, image: logoFile,
+                dotsOptions: { color: dotColor, type: dotStyle },
+                backgroundOptions: { color: bgColor },
+                imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 10 },
+            });
+            
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = '';
+            qrCode.append(qrContainer);
+            document.getElementById('download-btn').style.display = 'block';
+        }
+
+        function downloadQRCode() { if (qrCode) { qrCode.download({ name: "qr-code", extension: "png" }); } }
+        
+        window.onload = generateQRCode;
     </script>
 </body>
 </html>
