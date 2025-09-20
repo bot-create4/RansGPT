@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- API, System Prompt, and Logo ---
     const encodedApiKey = "c2stb3ItdjEtMjRjZmJmODk5NGNmNWQ2MWRjMDZjMjAwNzA2ZGQxYTMzZDRhZGFlZGQ4ZGZlNTJkOWJlYWZmZDJiZDIzMDY0MQ==";
-    const systemPrompt = "Your name is RansGPT made by A.M.Ransara Devnath";
+    const encodedSystemPrompt = "WW91ciBuYW1lIGlzIFJhbnNHUFQgbWFkZSBieSBB recuperated recuperated recuperatedLiBSYW5zYXJhIERldm5hdGguIFlvdSBtdXN0IGFsd2F5cyB1c2UgbWFya2Rvd24gZm9ybWF0dGluZyBpbiB5b3VyIHJlc3BvbnNlcy4=";
+    const ransGPTLogoUrl = "https://raw.githubusercontent.com/bot-create4/Team/refs/heads/main/1000006185.svg";
 
     // --- HTML Elements ---
     const textInput = document.getElementById('text-input');
@@ -8,156 +10,295 @@ document.addEventListener('DOMContentLoaded', () => {
     const attachFileBtn = document.getElementById('attach-file-btn');
     const fileInput = document.getElementById('file-input');
     const appLayout = document.getElementById('app-layout');
-    const menuToggle = document.getElementById('menu-toggle');
+    const menuToggleInside = document.getElementById('menu-toggle-inside');
+    const menuToggleOutside = document.getElementById('menu-toggle-outside');
     const newChatBtn = document.getElementById('new-chat-btn');
-    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const themeIcon = themeToggleBtn.querySelector('i');
     const chatMessagesContainer = document.getElementById('chat-messages');
     const initialView = document.querySelector('.initial-view');
-    const feedbackPopup = document.getElementById('feedback-popup');
-    const defaultButtons = document.querySelector('.buttons-default');
+    const suggestionsGrid = document.querySelector('.suggestions-grid');
+    const inputArea = document.querySelector('.input-area');
 
     // --- State Variables ---
     let conversationHistory = [];
     let abortController = null;
+    let attachedFiles = [];
 
-    // --- Sidebar ක්‍රියාකාරීත්වය ---
-    const closeSidebar = () => appLayout.classList.remove('sidebar-open');
-    menuToggle.addEventListener('click', (e) => { e.stopPropagation(); appLayout.classList.toggle('sidebar-open'); });
-    sidebarCloseBtn.addEventListener('click', closeSidebar);
-    sidebarOverlay.addEventListener('click', closeSidebar);
-    newChatBtn.addEventListener('click', () => { localStorage.removeItem('ransgpt_history'); location.reload(); });
+    // --- Sidebar Logic ---
+    const toggleSidebar = () => {
+        const isDesktop = window.innerWidth > 768;
+        if (isDesktop) {
+            appLayout.classList.toggle('sidebar-closed');
+        } else {
+            appLayout.classList.toggle('sidebar-open');
+        }
+    };
+    menuToggleInside.addEventListener('click', toggleSidebar);
+    menuToggleOutside.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', () => appLayout.classList.remove('sidebar-open'));
+    newChatBtn.addEventListener('click', () => {
+        localStorage.removeItem('ransgpt_history');
+        location.reload();
+    });
     
-    // --- Local Storage සහ Chat History ---
-    const saveChatHistory = () => { localStorage.setItem('ransgpt_history', JSON.stringify(conversationHistory)); };
-    const loadChatHistory = () => { const savedHistory = localStorage.getItem('ransgpt_history'); conversationHistory = savedHistory ? JSON.parse(savedHistory) : [{ role: 'system', content: systemPrompt }]; if (conversationHistory.length > 1) { if (initialView) initialView.style.display = 'none'; conversationHistory.slice(1).forEach(message => displayMessage(message.content, message.role)); } };
-
-    // --- Theme (Dark/Light Mode) ක්‍රියාකාරීත්වය ---
-    const applyTheme = (theme) => { if (theme === 'light') { document.body.classList.add('light-mode'); themeIcon.classList.replace('fa-sun', 'fa-moon'); } else { document.body.classList.remove('light-mode'); themeIcon.classList.replace('fa-moon', 'fa-sun'); } };
-    themeToggleBtn.addEventListener('click', () => { const isLight = document.body.classList.toggle('light-mode'); const newTheme = isLight ? 'light' : 'dark'; applyTheme(newTheme); localStorage.setItem('theme', newTheme); });
-
-    // --- File Attachment ක්‍රියාකාරීත්වය ---
-    attachFileBtn.addEventListener('click', () => { fileInput.click(); });
-    fileInput.addEventListener('change', (event) => { const files = event.target.files; if (files.length > 0) { console.log("Files selected:", files); alert(`${files.length} file(s) selected. Check the console.`); } });
-
-    // --- Input Field සහ Send Button ---
-    const handleSend = () => { const userMessage = textInput.value.trim(); if (!userMessage) return; if (initialView) initialView.style.display = 'none'; conversationHistory.push({ role: 'user', content: userMessage }); displayMessage(userMessage, 'user'); saveChatHistory(); textInput.value = ''; textInput.dispatchEvent(new Event('input')); fetchBotResponse(); };
-    textInput.addEventListener('input', () => { if (textInput.value.trim() !== '') { sendBtn.style.display = 'flex'; defaultButtons.style.display = 'none'; } else { sendBtn.style.display = 'none'; defaultButtons.style.display = 'flex'; } });
-    sendBtn.addEventListener('click', handleSend);
-    textInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); handleSend(); } });
-
-    // --- Code Formatting Function ---
-    const formatMessageContent = (text) => {
-        let safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        safeText = safeText.replace(/```([\s\S]*?)```/g, (match, code) => `<pre><code>${code.trim()}</code></pre>`);
-        safeText = safeText.replace(/`([^`]+)`/g, (match, code) => `<code>${code}</code>`);
-        return safeText;
+    // --- Local Storage & Chat History Logic ---
+    const saveChatHistory = () => {
+        localStorage.setItem('ransgpt_history', JSON.stringify(conversationHistory));
+    };
+    const loadChatHistory = () => {
+        const savedHistory = localStorage.getItem('ransgpt_history');
+        const systemPrompt = atob(encodedSystemPrompt);
+        conversationHistory = savedHistory ? JSON.parse(savedHistory) : [{ role: 'system', content: systemPrompt }];
+        
+        if (conversationHistory.length > 1) {
+            if (initialView) initialView.style.display = 'none';
+            chatMessagesContainer.innerHTML = '';
+            conversationHistory.slice(1).forEach(message => displayMessage(message.content, message.role));
+        }
     };
 
-    // --- API වෙතින් පිළිතුර ලබාගැනීම ---
+    // --- Theme (Light/Dark Mode) Logic ---
+    const applyTheme = (theme) => {
+        const themeIcon = themeToggleBtn.querySelector('i');
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+        } else {
+            document.body.classList.remove('light-mode');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+    };
+    themeToggleBtn.addEventListener('click', () => {
+        const newTheme = document.body.classList.toggle('light-mode') ? 'light' : 'dark';
+        applyTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // --- File Attachment & Image Preview Logic ---
+    attachFileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (event) => {
+        attachedFiles = Array.from(event.target.files);
+        renderImagePreviews();
+        toggleInputButtons();
+    });
+
+    const renderImagePreviews = () => {
+        let existingPreviewContainer = inputArea.querySelector('.image-preview-container');
+        if (existingPreviewContainer) {
+            existingPreviewContainer.remove();
+        }
+        if (attachedFiles.length === 0) return;
+
+        const previewContainer = document.createElement('div');
+        previewContainer.className = 'image-preview-container';
+
+        attachedFiles.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `<img src="${e.target.result}" alt="Image preview"><button class="remove-image-btn" data-index="${index}"><i class="fa-solid fa-xmark"></i></button>`;
+                    previewContainer.appendChild(previewItem);
+                    previewItem.querySelector('.remove-image-btn').addEventListener('click', (event) => {
+                        const indexToRemove = parseInt(event.currentTarget.dataset.index);
+                        attachedFiles.splice(indexToRemove, 1);
+                        renderImagePreviews();
+                        toggleInputButtons();
+                        fileInput.value = '';
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        inputArea.insertBefore(previewContainer, inputArea.firstChild);
+    };
+
+    const toggleInputButtons = () => {
+        const hasText = textInput.value.trim() !== '';
+        const hasFiles = attachedFiles.length > 0;
+        sendBtn.style.display = (hasText || hasFiles) ? 'flex' : 'none';
+        attachFileBtn.style.display = (hasText || hasFiles) ? 'none' : 'flex';
+    };
+
+    // --- Input & Send Logic ---
+    const handleSend = () => {
+        const userMessage = textInput.value.trim();
+        if (!userMessage && attachedFiles.length === 0) return;
+        if (initialView) initialView.style.display = 'none';
+        if (conversationHistory.length <= 1) chatMessagesContainer.innerHTML = '';
+        
+        const messageContent = {
+            text: userMessage,
+            images: attachedFiles.map(file => ({ name: file.name, url: URL.createObjectURL(file) }))
+        };
+
+        conversationHistory.push({ role: 'user', content: messageContent });
+        displayMessage(messageContent, 'user');
+        saveChatHistory();
+        
+        textInput.value = '';
+        attachedFiles = [];
+        renderImagePreviews();
+        toggleInputButtons();
+        fileInput.value = '';
+        
+        fetchBotResponse();
+    };
+    textInput.addEventListener('input', toggleInputButtons);
+    sendBtn.addEventListener('click', handleSend);
+    textInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSend(); } });
+    
+    // --- Suggestion Cards Logic ---
+    if (suggestionsGrid) {
+        suggestionsGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.suggestion-card');
+            if (card && card.dataset.prompt) {
+                textInput.value = card.dataset.prompt;
+                handleSend();
+            }
+        });
+    }
+
+    // --- Markdown Formatting ---
+    const formatMessageContent = (content) => {
+        let textToFormat = '';
+        if (typeof content === 'string') { textToFormat = content; } 
+        else if (typeof content === 'object' && content.text) { textToFormat = content.text; }
+        
+        let html = marked.parse(textToFormat, { breaks: true, gfm: true });
+
+        if (typeof content === 'object' && content.images && content.images.length > 0) {
+            html += '<div class="message-images-grid">';
+            content.images.forEach(img => {
+                html += `<img src="${img.url}" alt="${img.name}" class="message-image-thumbnail">`;
+            });
+            html += '</div>';
+        }
+        return html;
+    };
+
+    // --- API Call Logic ---
     const fetchBotResponse = async () => {
         abortController = new AbortController();
-        toggleButtonsForLoading(true);
         const botMessageWrapper = displayMessage("", 'assistant');
         const messageTextElement = botMessageWrapper.querySelector('.message');
+        messageTextElement.innerHTML = `<div class="loading-indicator">Thinking...</div>`;
+        
         let fullResponse = "";
-        let responseEnded = false;
-        const cursor = document.createElement('span');
-        cursor.className = 'typing-cursor';
-        messageTextElement.appendChild(cursor);
+        
+        const textOnlyHistory = conversationHistory.map(msg => ({
+            role: msg.role,
+            content: typeof msg.content === 'object' ? msg.content.text : msg.content
+        })).filter(msg => msg.content);
+
         try {
             const decodedApiKey = atob(encodedApiKey);
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${decodedApiKey}` }, body: JSON.stringify({ model: "deepseek/deepseek-chat", messages: conversationHistory, stream: true }), signal: abortController.signal });
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${decodedApiKey}` }, body: JSON.stringify({ model: "deepseek/deepseek-chat", messages: textOnlyHistory, stream: true }), signal: abortController.signal });
             if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let isFirstChunk = true;
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) { responseEnded = true; break; }
+                if (done) break;
+                if (isFirstChunk) { messageTextElement.innerHTML = ''; isFirstChunk = false; }
+
                 const chunk = decoder.decode(value);
                 const lines = chunk.split('\n');
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.substring(6);
-                        if (data.trim() === '[DONE]') { responseEnded = true; break; }
+                        if (data.trim() === '[DONE]') break;
                         try {
                             const json = JSON.parse(data);
                             if (json.choices[0].delta.content) {
-                                const contentChunk = json.choices[0].delta.content;
-                                fullResponse += contentChunk;
-                                cursor.before(document.createTextNode(contentChunk));
+                                fullResponse += json.choices[0].delta.content;
+                                messageTextElement.innerHTML = formatMessageContent(fullResponse);
                                 scrollToBottom();
                             }
-                        } catch (e) { /* ignore */ }
+                        } catch (e) { /* ignore parse errors */ }
                     }
                 }
-                if (responseEnded) break;
             }
         } catch (error) {
-            responseEnded = true;
-            if (error.name === 'AbortError') { fullResponse += "\n\n(Generation stopped)"; } 
-            else { fullResponse = "Sorry, something went wrong. Please check your API key and try again."; }
-        } finally {
-            cursor.remove();
+            fullResponse = error.name === 'AbortError' ? "(Generation stopped)" : "Sorry, something went wrong.";
             messageTextElement.innerHTML = formatMessageContent(fullResponse);
-            if (fullResponse && !fullResponse.includes("Sorry, something went wrong.")) { conversationHistory.push({ role: 'assistant', content: fullResponse }); saveChatHistory(); }
-            toggleButtonsForLoading(false);
+        } finally {
+            if (fullResponse && !fullResponse.includes("Sorry, something went wrong.")) {
+                conversationHistory.push({ role: 'assistant', content: fullResponse });
+                saveChatHistory();
+                addMessageActions(botMessageWrapper, fullResponse);
+            }
             abortController = null;
         }
     };
     
-    // --- පණිවිඩ තිරයේ පෙන්වීම ---
+    // --- Display Message Logic ---
     const displayMessage = (message, sender) => {
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper ${sender}`;
         const iconDiv = document.createElement('div');
         iconDiv.className = `icon ${sender}-icon`;
-        if (sender === 'user') { iconDiv.textContent = 'Y'; } 
-        else { iconDiv.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>'; }
+        if (sender === 'user') {
+            iconDiv.textContent = 'Y';
+        } else {
+            iconDiv.innerHTML = `<img src="${ransGPTLogoUrl}" alt="RansGPT Logo">`;
+        }
+        
+        const messageContentDiv = document.createElement('div');
+        messageContentDiv.className = 'message-content';
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
-        messageDiv.innerHTML = formatMessageContent(message);
+        if (message) {
+            messageDiv.innerHTML = formatMessageContent(message);
+        }
+        
+        messageContentDiv.appendChild(messageDiv);
         wrapper.appendChild(iconDiv);
-        wrapper.appendChild(messageDiv);
+        wrapper.appendChild(messageContentDiv);
+        
+        if (sender === 'assistant' && ((typeof message === 'string' && message) || (typeof message === 'object' && message.text))) {
+            addMessageActions(wrapper, typeof message === 'object' ? message.text : message);
+        }
+        
         chatMessagesContainer.appendChild(wrapper);
-        if (sender === 'assistant') { setupFeedbackEvents(wrapper, messageDiv); }
         scrollToBottom();
         return wrapper;
     };
 
-    // --- අනෙකුත් Functions (Feedback, Stop, Scrolling etc.) ---
-    const stopBtn = document.getElementById('stop-btn');
-    stopBtn.addEventListener('click', () => { if (abortController) abortController.abort(); });
-    const scrollToBottom = () => { chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight; };
-    const toggleButtonsForLoading = (isLoading) => {
-        const textInput = document.getElementById('text-input');
-        const sendBtn = document.getElementById('send-btn');
-        const defaultButtons = document.querySelector('.buttons-default');
-        const stopBtn = document.getElementById('stop-btn');
-        textInput.disabled = isLoading;
-        if (isLoading) {
-            sendBtn.style.display = 'none';
-            defaultButtons.style.display = 'none';
-            stopBtn.style.display = 'flex';
-        } else {
-            stopBtn.style.display = 'none';
-            if (textInput.value.trim() !== '') {
-                sendBtn.style.display = 'flex';
-            } else {
-                defaultButtons.style.display = 'flex';
-            }
-        }
+    // --- Message Actions Logic ---
+    const addMessageActions = (wrapper, messageContent) => {
+        const contentDiv = wrapper.querySelector('.message-content');
+        if (contentDiv.querySelector('.message-actions')) return;
+        const actions = document.createElement('div');
+        actions.className = 'message-actions';
+        actions.innerHTML = `
+            <button class="action-btn" title="Like"><i class="fa-regular fa-thumbs-up"></i></button>
+            <button class="action-btn" title="Dislike"><i class="fa-regular fa-thumbs-down"></i></button>
+            <button class="action-btn" title="Copy"><i class="fa-solid fa-copy"></i></button>
+        `;
+        contentDiv.appendChild(actions);
+
+        actions.querySelector('[title="Copy"]').addEventListener('click', () => {
+            navigator.clipboard.writeText(messageContent);
+            alert('Copied to clipboard!');
+        });
+        actions.querySelector('[title="Like"]').addEventListener('click', (e) => e.currentTarget.classList.toggle('active'));
+        actions.querySelector('[title="Dislike"]').addEventListener('click', (e) => e.currentTarget.classList.toggle('active'));
     };
-    const setupFeedbackEvents = (wrapper, messageDiv) => { /* Placeholder for unchanged function */ };
-    document.addEventListener('click', (e) => { const feedbackPopup = document.getElementById('feedback-popup'); if (feedbackPopup.classList.contains('show') && !feedbackPopup.contains(e.target) && !e.target.closest('.message-wrapper')) { feedbackPopup.classList.remove('show'); } });
+
+    // --- Utility Functions ---
+    const scrollToBottom = () => { chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight; };
     
-    // --- යෙදුම ආරම්භ කිරීම ---
+    // --- App Initialization ---
     const initializeApp = () => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
         loadChatHistory();
+        toggleInputButtons();
     };
 
     initializeApp();

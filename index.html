@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RansGPT</title>
+    <title>RansGPT - A Gemini Clone</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
     <div id="app-layout" class="app-layout">
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
-                <button id="new-chat-btn" class="new-chat-btn">
-                    <i class="fa-solid fa-plus"></i>
-                    New Chat
-                </button>
-                <button id="sidebar-close-btn" class="menu-toggle">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <button id="menu-toggle-inside" class="menu-toggle">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
+            <button id="new-chat-btn" class="new-chat-btn">
+                <i class="fa-solid fa-plus"></i>
+                New Chat
+            </button>
             <div class="sidebar-content">
                 <p class="recent-title">Recent</p>
                 <ul id="recent-chats-list" class="recent-chats-list">
@@ -36,48 +37,60 @@
 
         <main id="main-content" class="main-content">
             <header class="main-header">
-                <button id="menu-toggle" class="menu-toggle">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <span class="header-title">RansGPT</span>
+                <div class="header-left">
+                    <button id="menu-toggle-outside" class="menu-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <span class="header-title">RansGPT</span>
+                </div>
+                <div class="header-right">
+                    <button id="theme-toggle-btn" class="menu-toggle"><i class="fa-solid fa-sun"></i></button>
+                </div>
             </header>
 
             <div class="chat-container">
                 <div id="chat-messages" class="chat-messages">
                     <div class="initial-view">
-                        <header class="chat-header">
-                            <h1>Hello, <span class="gradient-text">there</span></h1>
+                        <div class="welcome-header">
+                            <h1 class="gradient-text">Hello</h1>
                             <p>How can I help you today?</p>
-                        </header>
+                        </div>
+                        <div class="suggestions-grid">
+                            <div class="suggestion-card" data-prompt="Design a home office setup for remote work under $500.">
+                                <p>Design a home office setup for remote work</p>
+                                <div class="card-icon"><i class="fa-solid fa-lightbulb"></i></div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="How can I level up my web development expertise in 2025?">
+                                <p>How can I level up my web dev expertise?</p>
+                                <div class="card-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="Suggest some useful tools for debugging JavaScript code.">
+                                <p>Suggest tools for debugging JavaScript code</p>
+                                <div class="card-icon"><i class="fa-solid fa-code"></i></div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="Create a React JS component for a simple todo list app.">
+                                <p>Create a React JS component for a todo list</p>
+                                <div class="card-icon"><i class="fa-brands fa-react"></i></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <footer class="input-area">
                 <div class="input-wrapper">
-                    <input type="text" id="text-input" placeholder="Ask RansGPT...">
-                    <input type="file" id="file-input" hidden multiple>
-                    <div class="buttons-default">
-                        <button id="theme-toggle-btn" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-                        <button id="attach-file-btn" aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
-                    </div>
-                    <button id="send-btn" aria-label="Send Message"><i class="fa-solid fa-arrow-up"></i></button>
-                    <button id="stop-btn" aria-label="Stop Generation"><i class="fa-solid fa-stop"></i></button>
+                    <input type="text" id="text-input" placeholder="Enter a prompt here">
+                    <input type="file" id="file-input" hidden multiple accept="image/*">
+                    <button id="attach-file-btn" class="input-action-btn" aria-label="Attach File"><i class="fa-solid fa-paperclip"></i></button>
+                    <button id="send-btn" class="input-action-btn" aria-label="Send Message"><i class="fa-solid fa-arrow-up"></i></button>
                 </div>
-                <p class="disclaimer">RansGPT can make mistakes, so double-check it.</p>
+                <p class="disclaimer">RansGPT can make mistakes. Consider checking important information.</p>
             </footer>
         </main>
         
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
     </div>
-
-    <div id="feedback-popup" class="feedback-popup">
-        <button id="copy-btn"><i class="fa-regular fa-copy"></i> Copy</button>
-        <button id="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-        <button id="dislike-btn"><i class="fa-regular fa-thumbs-down"></i> Dislike</button>
-        <button id="report-btn"><i class="fa-regular fa-flag"></i> Report</button>
-    </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
