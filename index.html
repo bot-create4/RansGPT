@@ -9,138 +9,83 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 🎨 New Premium Theme Definition --- */
         :root {
             --font-main: 'Inter', sans-serif;
-            /* Light Theme */
-            --bg-light: #f1f5f9;
-            --surface-light: #ffffff;
-            --text-primary-light: #0f172a;
-            --text-secondary-light: #64748b;
-            --border-light: #e2e8f0;
-            --primary-light: #4f46e5;
-            --primary-hover-light: #4338ca;
-            --accent-green-light: #10b981;
-            /* Dark Theme */
-            --bg-dark: #0f172a;
-            --surface-dark: #1e293b;
-            --text-primary-dark: #f1f5f9;
-            --text-secondary-dark: #94a3b8;
-            --border-dark: #334155;
-            --primary-dark: #818cf8;
-            --primary-hover-dark: #a78bfa;
-            --accent-green-dark: #34d399;
+            --bg-light: #f1f5f9; --surface-light: #ffffff; --text-primary-light: #0f172a;
+            --text-secondary-light: #64748b; --border-light: #e2e8f0; --primary-light: #4f46e5;
+            --primary-hover-light: #4338ca; --accent-green-light: #10b981;
+            --bg-dark: #0f172a; --surface-dark: #1e293b; --text-primary-dark: #f1f5f9;
+            --text-secondary-dark: #94a3b8; --border-dark: #334155; --primary-dark: #818cf8;
+            --primary-hover-dark: #a78bfa; --accent-green-dark: #34d399;
         }
-
-        /* --- Base Styles --- */
         *, *::before, *::after { box-sizing: border-box; }
         body {
-            font-family: var(--font-main);
-            background-color: var(--bg-light);
-            color: var(--text-primary-light);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            padding: 40px 20px;
+            font-family: var(--font-main); background-color: var(--bg-light); color: var(--text-primary-light);
+            transition: background-color 0.3s ease, color 0.3s ease; padding: 40px 20px;
         }
-        body.dark-mode {
-            background-color: var(--bg-dark);
-            color: var(--text-primary-dark);
-        }
+        body.dark-mode { background-color: var(--bg-dark); color: var(--text-primary-dark); }
         .main-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 40px;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: 2fr 1fr; gap: 40px;
+            width: 100%; max-width: 1200px; margin: 0 auto;
         }
         .options-panel, .output-panel {
-            background-color: var(--surface-light);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
+            background-color: var(--surface-light); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         body.dark-mode .options-panel, body.dark-mode .output-panel {
-            background-color: var(--surface-dark);
-            border-color: var(--border-dark);
+            background-color: var(--surface-dark); border-color: var(--border-dark);
         }
         h2 {
-            font-size: 1.5rem;
-            color: var(--text-primary-light);
-            margin-top: 0;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-light);
+            font-size: 1.5rem; color: var(--text-primary-light); margin-top: 0; margin-bottom: 25px;
+            padding-bottom: 15px; border-bottom: 1px solid var(--border-light);
         }
         body.dark-mode h2 { color: var(--text-primary-dark); border-bottom-color: var(--border-dark); }
-
-        /* --- Redesigned Tabs --- */
         .tab-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
         .tab-button {
-            padding: 10px 15px; border: 1px solid var(--border-light);
-            background-color: transparent; border-radius: 8px; cursor: pointer;
-            font-size: 0.9rem; font-weight: 600; color: var(--text-secondary-light);
-            transition: all 0.2s ease;
+            padding: 10px 15px; border: 1px solid var(--border-light); background-color: transparent;
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            color: var(--text-secondary-light); transition: all 0.2s ease;
         }
         body.dark-mode .tab-button { border-color: var(--border-dark); color: var(--text-secondary-dark); }
-        .tab-button.active {
-            color: #fff; background-color: var(--primary-light); border-color: var(--primary-light);
-        }
+        .tab-button.active { color: #fff; background-color: var(--primary-light); border-color: var(--primary-light); }
         body.dark-mode .tab-button.active { background-color: var(--primary-dark); border-color: var(--primary-dark); color: var(--bg-dark); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Redesigned Forms --- */
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
         .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 12px; border: 1px solid var(--border-light);
-            border-radius: 8px; font-size: 1rem; background-color: var(--bg-light); color: var(--text-primary-light);
+            width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px;
+            font-size: 1rem; background-color: var(--bg-light); color: var(--text-primary-light);
         }
         body.dark-mode .form-group input, body.dark-mode .form-group textarea, body.dark-mode .form-group select {
             background-color: var(--bg-dark); color: var(--text-primary-dark); border-color: var(--border-dark);
         }
         .inline-group { display: flex; gap: 20px; align-items: center; }
         input[type="color"] { width: 48px; height: 48px; padding: 4px; border-radius: 8px; }
-
-        /* --- Redesigned Buttons --- */
         .action-button {
             font-family: var(--font-main); display: flex; justify-content: center; align-items: center; gap: 10px;
             background-image: linear-gradient(to right, var(--primary-light), #6366f1);
-            color: white; padding: 16px 30px; border: none; border-radius: 10px;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-            margin-top: 20px; width: 100%; transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 15px -5px var(--primary-light);
+            color: white; padding: 16px 30px; border: none; border-radius: 10px; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; margin-top: 20px; width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 15px -5px var(--primary-light);
         }
         body.dark-mode .action-button { background-image: linear-gradient(to right, var(--primary-dark), #a78bfa); color: #1e293b; box-shadow: 0 4px 20px -5px var(--primary-dark); }
         .action-button:hover { transform: translateY(-2px); box-shadow: 0 7px 20px -5px var(--primary-light); }
         body.dark-mode .action-button:hover { box-shadow: 0 7px 25px -5px var(--primary-dark); }
         .download-btn { background-image: linear-gradient(to right, var(--accent-green-light), #2dd4bf); box-shadow: 0 4px 15px -5px var(--accent-green-light); }
         body.dark-mode .download-btn { background-image: linear-gradient(to right, var(--accent-green-dark), #5eead4); color: #1e293b; box-shadow: 0 4px 20px -5px var(--accent-green-dark); }
-
-        /* --- Output Panel --- */
         .output-panel { text-align: center; position: sticky; top: 40px; }
-        #qr-code {
-            display: flex; justify-content: center; align-items: center;
-            margin-top: 20px; min-height: 280px; padding: 20px;
-            background-color: var(--bg-light); border-radius: 12px;
-        }
+        #qr-code { display: flex; justify-content: center; align-items: center; margin-top: 20px; min-height: 280px; padding: 20px; background-color: var(--bg-light); border-radius: 12px; }
         body.dark-mode #qr-code { background-color: var(--bg-dark); }
-
-        /* --- Theme Toggle --- */
         .theme-toggle-button {
-            position: fixed; top: 20px; right: 20px;
-            background-color: var(--surface-light); border: 1px solid var(--border-light);
-            border-radius: 10px; width: 48px; height: 48px;
-            cursor: pointer; font-size: 1.5rem; display: flex;
-            justify-content: center; align-items: center;
-            box-shadow: 0 2px 5px -2px rgba(0,0,0,0.1); z-index: 100;
+            position: fixed; top: 20px; right: 20px; background-color: var(--surface-light);
+            border: 1px solid var(--border-light); border-radius: 10px; width: 48px; height: 48px;
+            cursor: pointer; font-size: 1.5rem; display: flex; justify-content: center;
+            align-items: center; box-shadow: 0 2px 5px -2px rgba(0,0,0,0.1); z-index: 100;
         }
         body.dark-mode .theme-toggle-button { background-color: var(--surface-dark); border-color: var(--border-dark); }
-
-        /* --- Responsive Design --- */
         @media (max-width: 900px) {
             .main-container { grid-template-columns: 1fr; }
             .output-panel { position: static; }
@@ -153,7 +98,6 @@
     <div class="main-container">
         <div class="options-panel">
             <h2>Create Your QR Code</h2>
-            
             <div class="tab-buttons">
                 <button class="tab-button active" onclick="showTab(event, 'text')">📄 Text/URL</button>
                 <button class="tab-button" onclick="showTab(event, 'wifi')">🌐 Wi-Fi</button>
@@ -161,26 +105,22 @@
                 <button class="tab-button" onclick="showTab(event, 'call')">📞 Call</button>
                 <button class="tab-button" onclick="showTab(event, 'sms')">💬 SMS</button>
                 <button class="tab-button" onclick="showTab(event, 'email')">✉️ Email</button>
+                <button class="tab-button" onclick="showTab(event, 'location')">📍 Location</button>
+                <button class="tab-button" onclick="showTab(event, 'event')">📅 Event</button>
             </div>
-
             <div id="text" class="tab-content active"><div class="form-group"><label for="text-input">Your Text or URL</label><textarea id="text-input" rows="4">https://google.com</textarea></div></div>
             <div id="wifi" class="tab-content"><div class="form-group"><label for="wifi-ssid">Network Name (SSID)</label><input type="text" id="wifi-ssid" placeholder="My Home Wi-Fi"></div><div class="form-group"><label for="wifi-password">Password</label><input type="password" id="wifi-password" placeholder="MySecretPassword"></div><div class="form-group"><label for="wifi-encryption">Encryption</label><select id="wifi-encryption"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option></select></div></div>
             <div id="vcard" class="tab-content"><div class="form-group"><label for="vcard-name">Full Name</label><input type="text" id="vcard-name" placeholder="Ransara Devnath"></div><div class="form-group"><label for="vcard-phone">Phone Number</label><input type="tel" id="vcard-phone" placeholder="+94 77 123 4567"></div><div class="form-group"><label for="vcard-email">Email</label><input type="email" id="vcard-email" placeholder="ransara@example.com"></div></div>
             <div id="call" class="tab-content"><div class="form-group"><label for="call-phone">Phone Number</label><input type="tel" id="call-phone" placeholder="+94 77 123 4567"></div></div>
             <div id="sms" class="tab-content"><div class="form-group"><label for="sms-phone">Phone Number</label><input type="tel" id="sms-phone" placeholder="+94 77 123 4567"></div><div class="form-group"><label for="sms-message">Message</label><textarea id="sms-message" rows="3">Hello!</textarea></div></div>
             <div id="email" class="tab-content"><div class="form-group"><label for="email-to">Recipient Email</label><input type="email" id="email-to" placeholder="friend@example.com"></div><div class="form-group"><label for="email-subject">Subject</label><input type="text" id="email-subject" placeholder="Greetings"></div><div class="form-group"><label for="email-body">Message</label><textarea id="email-body" rows="3">Hi there,</textarea></div></div>
+            <div id="location" class="tab-content"><div class="form-group"><label for="loc-latitude">Latitude</label><input type="text" id="loc-latitude" placeholder="6.9271"></div><div class="form-group"><label for="loc-longitude">Longitude</label><input type="text" id="loc-longitude" placeholder="79.8612"></div></div>
+            <div id="event" class="tab-content"><div class="form-group"><label for="event-title">Event Title</label><input type="text" id="event-title" placeholder="Team Meeting"></div><div class="form-group"><label for="event-location">Location</label><input type="text" id="event-location" placeholder="Office"></div><div class="form-group"><label for="event-start">Start Time</label><input type="datetime-local" id="event-start"></div><div class="form-group"><label for="event-end">End Time</label><input type="datetime-local" id="event-end"></div></div>
 
             <h2>Customize Appearance</h2>
-            <div class="form-group inline-group">
-                <label for="dot-color">Dot Color</label><input type="color" id="dot-color" value="#0f172a">
-                <label for="bg-color">Background</label><input type="color" id="bg-color" value="#ffffff">
-            </div>
-            <div class="form-group">
-                <label for="dot-style">Dot Style</label><select id="dot-style"><option value="square">Square</option><option value="dots">Dots</option><option value="rounded">Rounded</option></select>
-            </div>
-             <div class="form-group">
-                <label for="logo-upload">Add Logo (Optional)</label><input type="file" id="logo-upload" accept="image/*">
-            </div>
+            <div class="form-group inline-group"><label for="dot-color">Dot Color</label><input type="color" id="dot-color" value="#0f172a"><label for="bg-color">Background</label><input type="color" id="bg-color" value="#ffffff"></div>
+            <div class="form-group"><label for="dot-style">Dot Style</label><select id="dot-style"><option value="square">Square</option><option value="dots">Dots</option><option value="rounded">Rounded</option></select></div>
+            <div class="form-group"><label for="logo-upload">Add Logo (Optional)</label><input type="file" id="logo-upload" accept="image/*"></div>
             <button class="action-button" onclick="generateQRCode()">✨ Generate QR Code</button>
         </div>
 
@@ -202,8 +142,8 @@
             if (savedTheme === 'dark') {
                 body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
-                document.getElementById('dot-color').value = '#ffffff';
-                document.getElementById('bg-color').value = '#1e1e1e';
+                document.getElementById('dot-color').value = '#f1f5f9';
+                document.getElementById('bg-color').value = '#1e293b';
             } else {
                 body.classList.remove('dark-mode');
                 themeToggle.textContent = '🌙';
@@ -216,8 +156,8 @@
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
                 themeToggle.textContent = '☀️';
-                document.getElementById('dot-color').value = '#ffffff';
-                document.getElementById('bg-color').value = '#1e1e1e';
+                document.getElementById('dot-color').value = '#f1f5f9';
+                document.getElementById('bg-color').value = '#1e293b';
             } else {
                 localStorage.setItem('theme', 'light');
                 themeToggle.textContent = '🌙';
@@ -241,16 +181,28 @@
             } else { logoFile = null; }
         });
 
+        const formatDateToICS = (dateString) => {
+            if (!dateString) return '';
+            return new Date(dateString).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+
         function generateQRCode() {
             let data = '';
+            // Get data based on the active tab
             if (activeTab === 'text') { data = document.getElementById('text-input').value; }
             else if (activeTab === 'wifi') { const ssid = document.getElementById('wifi-ssid').value; const password = document.getElementById('wifi-password').value; const encryption = document.getElementById('wifi-encryption').value; data = `WIFI:T:${encryption};S:${ssid};P:${password};;`; }
             else if (activeTab === 'vcard') { const name = document.getElementById('vcard-name').value; const phone = document.getElementById('vcard-phone').value; const email = document.getElementById('vcard-email').value; data = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEMAIL:${email}\nEND:VCARD`; }
             else if (activeTab === 'call') { const phone = document.getElementById('call-phone').value; data = `tel:${phone}`; }
             else if (activeTab === 'sms') { const phone = document.getElementById('sms-phone').value; const message = document.getElementById('sms-message').value; data = `SMSTO:${phone}:${message}`; }
             else if (activeTab === 'email') { const email = document.getElementById('email-to').value; const subject = document.getElementById('email-subject').value; const body = document.getElementById('email-body').value; data = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
+            else if (activeTab === 'location') { const lat = document.getElementById('loc-latitude').value; const long = document.getElementById('loc-longitude').value; data = `geo:${lat},${long}`; }
+            else if (activeTab === 'event') {
+                const title = document.getElementById('event-title').value; const location = document.getElementById('event-location').value;
+                const startTime = formatDateToICS(document.getElementById('event-start').value); const endTime = formatDateToICS(document.getElementById('event-end').value);
+                data = `BEGIN:VEVENT\nSUMMARY:${title}\nLOCATION:${location}\nDTSTART:${startTime}\nDTEND:${endTime}\nEND:VEVENT`;
+            }
 
-            if (!data) { alert('Please fill in the required fields!'); return; }
+            if (!data) { console.error('No data provided for QR Code.'); return; }
             
             const dotColor = document.getElementById('dot-color').value; const bgColor = document.getElementById('bg-color').value; const dotStyle = document.getElementById('dot-style').value;
             qrCode = new QRCodeStyling({
@@ -268,7 +220,17 @@
 
         function downloadQRCode() { if (qrCode) { qrCode.download({ name: "qr-code", extension: "png" }); } }
         
-        window.onload = generateQRCode;
+        // This function runs once the page is fully loaded
+        window.onload = () => {
+            // Set default date and time for the 'Event' tab to user's current time
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const nowString = now.toISOString().slice(0, 16);
+            document.getElementById('event-start').value = nowString;
+            document.getElementById('event-end').value = nowString;
+            // Generate a default QR code on page load
+            generateQRCode();
+        };
     </script>
 </body>
 </html>
