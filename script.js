@@ -58,7 +58,7 @@ function addMessage(message, sender, isThinking = false) {
         avatar = document.createElement('div');
         avatar.classList.add('avatar');
         avatar.innerHTML = `<i class="fas fa-user"></i>`;
-    } else { // For 'bot'
+    } else { 
         avatar = document.createElement('img');
         avatar.classList.add('avatar');
         avatar.src = 'https://files.catbox.moe/fj08ro.jpg';
@@ -69,14 +69,12 @@ function addMessage(message, sender, isThinking = false) {
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
     if (isThinking) {
+        // MODIFIED: New three-dots animation
         messageContent.innerHTML = `
             <div class="thinking-animation">
-                <div class="gemini-logo-container">
-                    <div class="gemini-logo-spinner"></div>
-                    <div class="gemini-logo-inner"></div>
-                    <i class="fas fa-asterisk gemini-logo-icon"></i>
-                </div>
-                <button class="stop-btn" id="stop-btn-${messageId}"><i class="fas fa-stop"></i></button>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
             </div>`;
     } else {
         const p = document.createElement('p');
@@ -97,8 +95,11 @@ function addMessage(message, sender, isThinking = false) {
 }
 
 async function sendMessage(queryText) {
-    if (apiRequestController && !apiRequestController.signal.aborted) {
-        showToast("Please wait for the current response to finish.");
+    if (sendBtn.classList.contains('is-stopping')) {
+        // If it's a stop button, abort the request
+        if(apiRequestController) {
+            apiRequestController.abort();
+        }
         return;
     }
 
@@ -109,19 +110,13 @@ async function sendMessage(queryText) {
     currentChat.push({ sender: 'user', text: query });
     lastUserMessage = query;
     userInput.value = '';
-    toggleSendButton();
     
+    // MODIFIED: Change send button to stop button
+    toggleSendButton(true); // isSending = true
+
     const thinkingMessageId = addMessage('', 'bot', true);
     
     apiRequestController = new AbortController();
-    const stopBtn = document.getElementById(`stop-btn-${thinkingMessageId}`);
-    if (stopBtn) {
-        stopBtn.addEventListener('click', () => {
-            apiRequestController.abort();
-            document.getElementById(thinkingMessageId)?.remove();
-            addMessage("Response stopped by user.", "bot");
-        });
-    }
 
     try {
         const response = await fetch('/.netlify/functions/chat', { 
@@ -142,25 +137,40 @@ async function sendMessage(queryText) {
     } catch (error) {
         if (error.name === 'AbortError') {
             console.log('Fetch aborted by user.');
+            document.getElementById(thinkingMessageId)?.remove();
+            addMessage("Response stopped.", "bot");
         } else {
             document.getElementById(thinkingMessageId)?.remove();
             addMessage('Sorry, something went wrong.', 'bot');
             console.error('Error:', error);
         }
     } finally {
+        toggleSendButton(false); // isSending = false
         apiRequestController = null;
     }
 }
 
-function toggleSendButton() {
-    if (userInput.value.trim() !== '') {
+// MODIFIED: To handle the Send/Stop button state
+function toggleSendButton(isSending = false) {
+    const hasText = userInput.value.trim() !== '';
+    if (isSending) {
         micBtn.style.display = 'none';
-        sendBtn.style.display = 'block';
+        sendBtn.style.display = 'flex';
+        sendBtn.classList.add('is-stopping');
+        sendBtn.innerHTML = `<i class="fas fa-stop"></i>`;
     } else {
-        micBtn.style.display = 'block';
-        sendBtn.style.display = 'none';
+        sendBtn.classList.remove('is-stopping');
+        sendBtn.innerHTML = `<i class="fas fa-arrow-up"></i>`;
+        if (hasText) {
+            micBtn.style.display = 'none';
+            sendBtn.style.display = 'flex';
+        } else {
+            micBtn.style.display = 'flex';
+            sendBtn.style.display = 'none';
+        }
     }
 }
+
 
 function toggleSidebar() { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); }
 function saveCurrentChat() {
@@ -216,7 +226,7 @@ newChatBtn.addEventListener('click', startNewChat);
 
 sendBtn.addEventListener('click', () => sendMessage());
 userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-userInput.addEventListener('input', toggleSendButton);
+userInput.addEventListener('input', () => toggleSendButton(false));
 suggestionCards.forEach(card => card.addEventListener('click', () => sendMessage(card.getAttribute('data-prompt'))));
 plusBtn.addEventListener('click', () => { showToast('File upload is coming soon!'); });
 micBtn.addEventListener('click', () => { showToast('Voice input is coming soon!'); });
@@ -235,9 +245,7 @@ document.getElementById('copy-btn').addEventListener('click', () => {
 document.getElementById('share-btn').addEventListener('click', () => { showToast('Share feature is coming soon!'); hideOptionsMenu(); });
 document.getElementById('export-btn').addEventListener('click', () => { showToast('Export feature is coming soon!'); hideOptionsMenu(); });
 
-themeToggle.addEventListener('change', () => {
-    setTheme(themeToggle.checked ? 'dark' : 'light');
-});
+themeToggle.addEventListener('change', () => { setTheme(themeToggle.checked ? 'dark' : 'light'); });
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedChats = localStorage.getItem('ransgpt_chats');
