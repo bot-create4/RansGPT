@@ -3,13 +3,22 @@ const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event) => {
+    // POST request vitharak accept karanna
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
     try {
-        const { query } = JSON.parse(event.body);
+        const { history } = JSON.parse(event.body);
+
+        // history eke anthima message eka thamai aluth query eka
+        const lastMessage = history[history.length - 1];
+        if (!lastMessage || lastMessage.sender !== 'user') {
+            throw new Error("Invalid history format or last message is not from user.");
+        }
+        const query = lastMessage.text;
         const lowerCaseQuery = query.toLowerCase().trim();
 
+        // 1. Mulimma ape danuma (knowledge.json) eke balanna
         const knowledgePath = path.resolve(process.cwd(), 'knowledge.json');
         const knowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
         const trainedAnswer = knowledge.find(item => item.question.toLowerCase() === lowerCaseQuery);
@@ -18,12 +27,27 @@ exports.handler = async (event) => {
             return { statusCode: 200, body: JSON.stringify({ reply: trainedAnswer.answer }) };
         }
         
-        const { OPENROUTER_API_KEY } = process.env;
+        // 2. Eke nethnam, OpenRouter API ekata call karanna
+        const { OPENROUTER_API_KEY } = process.env; // Netlify walin API Key eka ganna
 
         if (!OPENROUTER_API_KEY) {
             throw new Error("API Key NOT FOUND in Netlify environment variables!");
         }
         
+        // API ekata yawanna ona format ekata history eka hadaganna
+        const messagesForApi = history.map(message => {
+            return {
+                role: message.sender === 'user' ? 'user' : 'assistant',
+                content: message.text
+            };
+        });
+
+        // System prompt eka mulata ekathu karanna
+        const finalMessages = [
+            { "role": "system", "content": "Your name is RansGPT, made by Ransara Devnath, train by Ransara Devnath." },
+            ...messagesForApi
+        ];
+
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -31,12 +55,8 @@ exports.handler = async (event) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // --- මෙතන තමයි වෙනස සිදුකළේ ---
                 model: "deepseek/deepseek-chat",
-                messages: [
-                    { "role": "system", "content": "Your name is RansGPT, made by Ransara Devnath, train by Ransara Devnath." },
-                    { "role": "user", "content": query }
-                ]
+                messages: finalMessages // Sampurna chat history eka yawanna
             })
         });
 
