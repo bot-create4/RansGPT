@@ -8,14 +8,17 @@ exports.handler = async (event) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
     try {
-        const { history } = JSON.parse(event.body);
+        // --- THIS PART IS NOW CORRECTED ---
+        // We get 'history' if it exists, or 'query' for older requests
+        const body = JSON.parse(event.body);
+        const history = body.history;
+        const query = body.query || (history && history.length > 0 ? history[history.length - 1].text : null);
 
-        // history eke anthima message eka thamai aluth query eka
-        const lastMessage = history[history.length - 1];
-        if (!lastMessage || lastMessage.sender !== 'user') {
-            throw new Error("Invalid history format or last message is not from user.");
+        if (!query) {
+            throw new Error("No query or history found in the request.");
         }
-        const query = lastMessage.text;
+        // --- END CORRECTION ---
+
         const lowerCaseQuery = query.toLowerCase().trim();
 
         // 1. Mulimma ape danuma (knowledge.json) eke balanna
@@ -28,27 +31,38 @@ exports.handler = async (event) => {
         }
         
         // 2. Eke nethnam, OpenRouter API ekata call karanna
-        const { OPENROUTER_API_KEY } = process.env; // Netlify walin API Key eka ganna
+        const { OPENROUTER_API_KEY } = process.env;
 
         if (!OPENROUTER_API_KEY) {
             throw new Error("API Key NOT FOUND in Netlify environment variables!");
         }
         
-        // API ekata yawanna ona format ekata history eka hadaganna
-        const messagesForApi = history.map(message => {
-            return {
-                role: message.sender === 'user' ? 'user' : 'assistant',
-                content: message.text
-            };
-        });
+        let messagesForApi = [];
+
+        // Check if history exists to build the conversation
+        if (history && history.length > 0) {
+             messagesForApi = history.map(message => {
+                return {
+                    role: message.sender === 'user' ? 'user' : 'assistant',
+                    content: message.text
+                };
+            });
+        } else {
+            // If no history, create a simple message array
+            messagesForApi.push({ role: 'user', content: query });
+        }
+
 
         // System prompt eka mulata ekathu karanna
         const finalMessages = [
-            { "role": "system", "content": "Your name is RansGPT, made by Ransara Devnath, train by Ransara Devnath." },
+            { 
+                "role": "system", 
+                "content": "You are RansGPT, an expert AI programmer and full-stack developer assistant created and trained by Ransara Devnath. Your primary goal is to help users by providing complete, functional, and well-explained code. When a user asks for a website, a tool, or a code snippet, you must provide all the necessary code (HTML, CSS, JavaScript) in a single, copy-paste ready block. For web pages, always combine everything into a single index.html file. Always use ```html, ```css, ```javascript markdown blocks to wrap your code. Explain each part of the code clearly and professionally after providing the full code block. Your name is RansGPT." 
+            },
             ...messagesForApi
         ];
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("[https://openrouter.ai/api/v1/chat/completions](https://openrouter.ai/api/v1/chat/completions)", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
@@ -56,7 +70,7 @@ exports.handler = async (event) => {
             },
             body: JSON.stringify({
                 model: "deepseek/deepseek-chat",
-                messages: finalMessages // Sampurna chat history eka yawanna
+                messages: finalMessages 
             })
         });
 
