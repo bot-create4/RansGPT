@@ -16,7 +16,7 @@ const toast = document.getElementById('toast');
 const themeToggle = document.getElementById('theme-toggle');
 const recentChatsList = document.getElementById('recent-chats-list');
 const newChatBtn = document.getElementById('new-chat-btn');
-const authContainer = document.getElementById('auth-container');
+const profileIconContainer = document.getElementById('profile-icon-container');
 const accountModalOverlay = document.getElementById('account-modal-overlay');
 const accountModal = document.getElementById('account-modal');
 const userNameInput = document.getElementById('user-name-input');
@@ -40,57 +40,87 @@ const avatarOptions = [
 ];
 let tempSelectedAvatar = "icon";
 
-// --- UI Update Functions ---
+// --- UI Update & User Account Logic ---
 function updateUI(user) {
-    authContainer.innerHTML = ''; 
+    profileIconContainer.innerHTML = ''; // Clear previous icon/button
+    
+    const userAvatarSrc = user ? (user.user_metadata.avatar || 'icon') : 'icon';
+    let profileIcon;
+
+    if (userAvatarSrc === 'icon') {
+        profileIcon = document.createElement('div');
+        profileIcon.classList.add('profile-icon');
+        profileIcon.innerHTML = `<i class="fas fa-user"></i>`;
+    } else {
+        profileIcon = document.createElement('img');
+        profileIcon.classList.add('profile-icon');
+        profileIcon.src = userAvatarSrc;
+    }
+    profileIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleProfileDropdown(user);
+    });
+    profileIconContainer.appendChild(profileIcon);
     
     if (user) {
-        document.body.style.display = 'flex'; 
-        
-        const userAvatarSrc = user.user_metadata.avatar || 'icon';
-        let profileIcon;
-        if (userAvatarSrc === 'icon') {
-            profileIcon = document.createElement('div');
-            profileIcon.classList.add('profile-icon');
-            profileIcon.innerHTML = `<i class="fas fa-user"></i>`;
-        } else {
-            profileIcon = document.createElement('img');
-            profileIcon.classList.add('profile-icon');
-            profileIcon.src = userAvatarSrc;
-        }
-        profileIcon.style.cursor = 'pointer';
-        profileIcon.addEventListener('click', openAccountModal);
-        authContainer.appendChild(profileIcon);
-        
         greetingH1.textContent = `Hello, ${user.user_metadata.full_name || user.user_metadata.name || user.email.split('@')[0]}`;
-        
         loadUserSpecificData(user);
-        
     } else {
-        document.body.style.display = 'flex'; 
-        
-        const loginBtn = document.createElement('button');
-        loginBtn.textContent = 'Login / Sign Up';
-        loginBtn.addEventListener('click', () => netlifyIdentity.open());
-        authContainer.appendChild(loginBtn);
-        
         showWelcomeView();
         greetingH1.textContent = `Hello, Guest`;
         recentChatsList.innerHTML = '';
     }
 }
 
+function toggleProfileDropdown(user) {
+    let dropdown = document.getElementById('profile-dropdown');
+    if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'profile-dropdown';
+        dropdown.classList.add('profile-dropdown');
+        profileIconContainer.appendChild(dropdown);
+    }
+
+    const ul = document.createElement('ul');
+    if (user) {
+        ul.innerHTML = `
+            <li id="settings-btn"><i class="fas fa-cog"></i> Settings</li>
+            <li id="logout-btn" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</li>
+        `;
+    } else {
+        ul.innerHTML = `<li id="login-btn"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</li>`;
+    }
+    
+    dropdown.innerHTML = '';
+    dropdown.appendChild(ul);
+    
+    // Add event listeners to the newly created items
+    if (user) {
+        dropdown.querySelector('#settings-btn').addEventListener('click', openAccountModal);
+        dropdown.querySelector('#logout-btn').addEventListener('click', () => {
+            netlifyIdentity.logout();
+            dropdown.classList.remove('show');
+        });
+    } else {
+        dropdown.querySelector('#login-btn').addEventListener('click', () => {
+            netlifyIdentity.open();
+            dropdown.classList.remove('show');
+        });
+    }
+    
+    dropdown.classList.toggle('show');
+}
+
+
 function openAccountModal() {
     const user = netlifyIdentity.currentUser();
     if (!user) return;
-
     userNameInput.value = user.user_metadata.name || user.user_metadata.full_name || '';
     tempSelectedAvatar = user.user_metadata.avatar || 'icon';
     
     avatarSelectionContainer.innerHTML = '';
     avatarOptions.forEach(avatarSrc => {
         let avatarChoice = (avatarSrc === 'icon') ? document.createElement('div') : document.createElement('img');
-        
         if (avatarSrc === 'icon') {
             avatarChoice.classList.add('avatar-choice', 'profile-icon');
             avatarChoice.innerHTML = `<i class="fas fa-user"></i>`;
@@ -98,12 +128,8 @@ function openAccountModal() {
             avatarChoice.classList.add('avatar-choice');
             avatarChoice.src = avatarSrc;
         }
-        
         avatarChoice.dataset.src = avatarSrc;
-        if (avatarSrc === tempSelectedAvatar) {
-            avatarChoice.classList.add('selected');
-        }
-        
+        if (avatarSrc === tempSelectedAvatar) { avatarChoice.classList.add('selected'); }
         avatarChoice.addEventListener('click', () => {
             document.querySelectorAll('.avatar-choice').forEach(el => el.classList.remove('selected'));
             avatarChoice.classList.add('selected');
@@ -111,7 +137,6 @@ function openAccountModal() {
         });
         avatarSelectionContainer.appendChild(avatarChoice);
     });
-
     accountModal.style.display = 'block';
     accountModalOverlay.style.display = 'block';
 }
@@ -124,23 +149,14 @@ function closeAccountModal() {
 function saveAccountSettings() {
     const user = netlifyIdentity.currentUser();
     const newName = userNameInput.value.trim();
-    
-    user.update({
-        data: {
-            name: newName,
-            avatar: tempSelectedAvatar
-        }
-    }).then(updatedUser => {
-        updateUI(updatedUser);
-        showToast("Settings saved successfully!");
-        closeAccountModal();
-        if (currentChat.length > 0) {
-            loadChat(currentChatId);
-        }
-    }).catch(error => {
-        console.error("Error updating user data:", error);
-        showToast("Failed to save settings.");
-    });
+    user.update({ data: { name: newName, avatar: tempSelectedAvatar } })
+        .then(updatedUser => {
+            updateUI(updatedUser);
+            showToast("Settings saved successfully!");
+            closeAccountModal();
+            if (currentChat.length > 0) { loadChat(currentChatId); }
+        })
+        .catch(error => { console.error("Error updating user data:", error); showToast("Failed to save settings."); });
 }
 
 function deleteAccount() {
@@ -148,12 +164,8 @@ function deleteAccount() {
     if (isConfirmed) {
         const user = netlifyIdentity.currentUser();
         localStorage.removeItem(`ransgpt_chats_${user.id}`);
-        user.delete().then(() => {
-            showToast("Account deleted successfully.");
-        }).catch(error => {
-            console.error("Error deleting account:", error);
-            showToast("Failed to delete account.");
-        });
+        user.delete().then(() => { showToast("Account deleted successfully."); })
+            .catch(error => { console.error("Error deleting account:", error); showToast("Failed to delete account."); });
     }
 }
 
@@ -326,6 +338,12 @@ function toggleSendButton(isSending = false) {
     }
 }
 
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('ransgpt_theme', theme);
@@ -372,7 +390,9 @@ saveAccountBtn.addEventListener('click', saveAccountSettings);
 deleteAccountBtn.addEventListener('click', deleteAccount);
 accountModalOverlay.addEventListener('click', closeAccountModal);
 
-document.addEventListener('DOMContentLoaded', () => {
-    // This event listener is a fallback, but the primary logic
-    // is now handled by netlifyIdentity.on('init', ...)
+window.addEventListener('click', () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+    }
 });
