@@ -32,21 +32,26 @@ let currentChatId = null;
 let lastUserMessage = '';
 let currentMessageText = '';
 let apiRequestController;
-const avatarOptions = [
-    "icon",
-    "https://files.catbox.moe/6j6s3e.png",
-    "https://files.catbox.moe/x9w3tq.png",
-    "https://files.catbox.moe/q3f3a5.png"
-];
+const avatarOptions = ["icon", "https://files.catbox.moe/6j6s3e.png", "https://files.catbox.moe/x9w3tq.png", "https://files.catbox.moe/q3f3a5.png"];
 let tempSelectedAvatar = "icon";
+
+
+// --- NEW HELPER FUNCTION: To find URLs and convert to links ---
+function linkifyText(text) {
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlPattern, function(url) {
+        const startsWithWww = url.toLowerCase().startsWith('www.');
+        const href = startsWithWww ? 'http://' + url : url;
+        return `<a href="${href}" target="_blank" class="chat-link">${url}</a>`;
+    });
+}
+
 
 // --- UI Update & User Account Logic ---
 function updateUI(user) {
-    profileIconContainer.innerHTML = ''; // Clear previous icon/button
-    
+    profileIconContainer.innerHTML = ''; 
     const userAvatarSrc = user ? (user.user_metadata.avatar || 'icon') : 'icon';
     let profileIcon;
-
     if (userAvatarSrc === 'icon') {
         profileIcon = document.createElement('div');
         profileIcon.classList.add('profile-icon');
@@ -80,7 +85,6 @@ function toggleProfileDropdown(user) {
         dropdown.classList.add('profile-dropdown');
         profileIconContainer.appendChild(dropdown);
     }
-
     const ul = document.createElement('ul');
     if (user) {
         ul.innerHTML = `
@@ -90,34 +94,22 @@ function toggleProfileDropdown(user) {
     } else {
         ul.innerHTML = `<li id="login-btn"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</li>`;
     }
-    
     dropdown.innerHTML = '';
     dropdown.appendChild(ul);
-    
-    // Add event listeners to the newly created items
     if (user) {
         dropdown.querySelector('#settings-btn').addEventListener('click', openAccountModal);
-        dropdown.querySelector('#logout-btn').addEventListener('click', () => {
-            netlifyIdentity.logout();
-            dropdown.classList.remove('show');
-        });
+        dropdown.querySelector('#logout-btn').addEventListener('click', () => { netlifyIdentity.logout(); dropdown.classList.remove('show'); });
     } else {
-        dropdown.querySelector('#login-btn').addEventListener('click', () => {
-            netlifyIdentity.open();
-            dropdown.classList.remove('show');
-        });
+        dropdown.querySelector('#login-btn').addEventListener('click', () => { netlifyIdentity.open(); dropdown.classList.remove('show'); });
     }
-    
     dropdown.classList.toggle('show');
 }
-
 
 function openAccountModal() {
     const user = netlifyIdentity.currentUser();
     if (!user) return;
     userNameInput.value = user.user_metadata.name || user.user_metadata.full_name || '';
     tempSelectedAvatar = user.user_metadata.avatar || 'icon';
-    
     avatarSelectionContainer.innerHTML = '';
     avatarOptions.forEach(avatarSrc => {
         let avatarChoice = (avatarSrc === 'icon') ? document.createElement('div') : document.createElement('img');
@@ -227,6 +219,7 @@ function startNewChat() {
     if (sidebar.classList.contains('open')) { toggleSidebar(); }
 }
 
+// --- MODIFIED: addMessage function to use the linkify function ---
 function addMessage(message, sender, isThinking = false) {
     showChatView();
     const user = netlifyIdentity.currentUser();
@@ -260,8 +253,10 @@ function addMessage(message, sender, isThinking = false) {
     } else {
         const p = document.createElement('p');
         if (sender === 'bot') {
-            const dirtyHtml = marked.parse(message);
-            p.innerHTML = DOMPurify.sanitize(dirtyHtml);
+            const linkedText = linkifyText(message); // First, convert URLs to links
+            const dirtyHtml = marked.parse(linkedText); // Then, parse Markdown
+            // Sanitize the final HTML, allowing target="_blank" for links
+            p.innerHTML = DOMPurify.sanitize(dirtyHtml, { ADD_ATTR: ['target'] });
         } else {
             p.textContent = message;
         }
@@ -336,12 +331,6 @@ function toggleSendButton(isSending = false) {
             sendBtn.style.display = 'none';
         }
     }
-}
-
-function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
 function setTheme(theme) {

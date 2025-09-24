@@ -86,7 +86,8 @@
         .message.bot .avatar { background: none; }
         .message-content { display: flex; flex-direction: column; width: 100%; position: relative; }
         .message.user .message-content { align-items: flex-end; }
-        .message p { padding-top: 4px; line-height: 1.6; white-space: pre-wrap; }
+        .message p { padding-top: 4px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+        .message p a.chat-link { color: var(--accent-color); text-decoration: underline; }
         .message p strong, .message p b { font-weight: bold; }
         .message p em, .message p i { font-style: italic; }
         .message p code { background-color: var(--surface-color); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.9em; }
