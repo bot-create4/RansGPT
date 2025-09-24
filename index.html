@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
     <style>
         :root {
             --background-color: #131314;
@@ -49,18 +52,13 @@
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
-        /* MODIFIED: App container to fill height */
         .app-container { width: 100%; display: flex; flex-direction: column; height: 100vh; }
-        
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; flex-shrink: 0; }
         .top-bar .menu-icon { font-size: 20px; cursor: pointer; color: var(--text-color); }
         .profile-icon { background-color: var(--surface-color); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; border: 1px solid var(--secondary-text-color); }
         .top-bar .title { font-size: 20px; font-weight: 500; }
-        
-        /* MODIFIED: Main content area to scroll correctly */
         .main-content { flex-grow: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; align-items: center; }
         .content-wrapper { width: 100%; max-width: 800px; padding-top: 24px; }
-
         .greeting h1 { font-size: clamp(2rem, 10vw, 3.5rem); font-weight: 400; background: -webkit-linear-gradient(45deg, #4285F4, #9B72CB, #D96570, #F2A600); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
         .greeting p { font-size: 1.25rem; color: var(--secondary-text-color); }
         .suggestion-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 40px; }
@@ -79,8 +77,30 @@
         .message-content { display: flex; flex-direction: column; width: 100%; position: relative; }
         .message.user .message-content { align-items: flex-end; }
         .message p { padding-top: 4px; line-height: 1.6; white-space: pre-wrap; }
+
+        /* --- NEW: Styles for Markdown content --- */
+        .message p strong, .message p b { font-weight: bold; }
+        .message p em, .message p i { font-style: italic; }
+        .message p code {
+            background-color: var(--surface-color);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .message p pre {
+            background-color: #000;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .message p pre code { background: none; padding: 0; }
+        .message p ul, .message p ol { margin-left: 20px; margin-top: 10px; margin-bottom: 10px; }
+        .message p li { margin-bottom: 5px; }
+        /* --- END NEW STYLES --- */
         
-        /* --- NEW: Three Dots Animation Styles --- */
         .thinking-animation { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
         .typing-dot { width: 8px; height: 8px; background-color: var(--secondary-text-color); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -105,19 +125,12 @@
         .options-list li { padding: 14px 0; border-top: 1px solid var(--surface-color); display: flex; align-items: center; gap: 16px; cursor: pointer; }
         .options-list li i { width: 20px; text-align: center; }
         
-        /* MODIFIED: Input Area to work on all screen sizes */
         .input-area { padding: 8px 16px 16px 16px; background-color: var(--background-color); flex-shrink: 0; width: 100%; }
         .input-wrapper { max-width: 800px; margin: 0 auto; display: flex; align-items: center; background-color: var(--surface-color); border-radius: 28px; padding: 4px 12px; }
         #user-input { flex-grow: 1; border: none; background: none; color: var(--text-color); padding: 12px; font-size: 16px; outline: none; resize: none; max-height: 100px; overflow-y: auto; }
         .icon-btn { background: none; border: none; color: var(--secondary-text-color); font-size: 20px; cursor: pointer; padding: 8px; border-radius: 50%; transition: background-color 0.2s; display: flex; justify-content: center; align-items: center; }
         .icon-btn:hover { background-color: var(--hover-color); }
-        
-        /* NEW: Style for when send button becomes stop button */
-        #send-btn.is-stopping {
-            background-color: var(--hover-color);
-            border: 1px solid var(--secondary-text-color);
-        }
-
+        #send-btn.is-stopping { background-color: var(--hover-color); border: 1px solid var(--secondary-text-color); }
         .disclaimer { font-size: 12px; color: var(--secondary-text-color); text-align: center; padding-top: 10px; max-width: 800px; margin: 0 auto; }
         .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: var(--surface-color); color: var(--text-color); padding: 12px 24px; border-radius: 8px; z-index: 200; transition: bottom 0.5s ease-in-out; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .toast.show { bottom: 30px; }
@@ -131,6 +144,7 @@
     </style>
 </head>
 <body>
+    
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <button class="close-btn" id="close-sidebar-btn"><i class="fas fa-times"></i></button>

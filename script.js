@@ -46,6 +46,7 @@ function showWelcomeView() {
     chatBox.innerHTML = '';
 }
 
+// --- MODIFIED: addMessage function to render Markdown ---
 function addMessage(message, sender, isThinking = false) {
     showChatView();
     const messageId = 'msg-' + Date.now();
@@ -69,7 +70,6 @@ function addMessage(message, sender, isThinking = false) {
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
     if (isThinking) {
-        // MODIFIED: New three-dots animation
         messageContent.innerHTML = `
             <div class="thinking-animation">
                 <div class="typing-dot"></div>
@@ -78,7 +78,16 @@ function addMessage(message, sender, isThinking = false) {
             </div>`;
     } else {
         const p = document.createElement('p');
-        p.textContent = message;
+        
+        if (sender === 'bot') {
+            // Convert Markdown to safe HTML for bot messages
+            const dirtyHtml = marked.parse(message);
+            p.innerHTML = DOMPurify.sanitize(dirtyHtml);
+        } else {
+            // For user messages, just display plain text for security
+            p.textContent = message;
+        }
+
         messageContent.appendChild(p);
         if (sender === 'bot') {
             const optionsContainer = document.createElement('div');
@@ -93,10 +102,10 @@ function addMessage(message, sender, isThinking = false) {
     chatBox.parentElement.parentElement.scrollTop = chatBox.parentElement.parentElement.scrollHeight;
     return messageId;
 }
+// --- END MODIFICATION ---
 
 async function sendMessage(queryText) {
     if (sendBtn.classList.contains('is-stopping')) {
-        // If it's a stop button, abort the request
         if(apiRequestController) {
             apiRequestController.abort();
         }
@@ -111,8 +120,7 @@ async function sendMessage(queryText) {
     lastUserMessage = query;
     userInput.value = '';
     
-    // MODIFIED: Change send button to stop button
-    toggleSendButton(true); // isSending = true
+    toggleSendButton(true);
 
     const thinkingMessageId = addMessage('', 'bot', true);
     
@@ -145,12 +153,11 @@ async function sendMessage(queryText) {
             console.error('Error:', error);
         }
     } finally {
-        toggleSendButton(false); // isSending = false
+        toggleSendButton(false); 
         apiRequestController = null;
     }
 }
 
-// MODIFIED: To handle the Send/Stop button state
 function toggleSendButton(isSending = false) {
     const hasText = userInput.value.trim() !== '';
     if (isSending) {
