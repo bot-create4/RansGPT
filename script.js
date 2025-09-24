@@ -371,3 +371,8 @@ themeToggle.addEventListener('change', () => {
 saveAccountBtn.addEventListener('click', saveAccountSettings);
 deleteAccountBtn.addEventListener('click', deleteAccount);
 accountModalOverlay.addEventListener('click', closeAccountModal);
+
+document.addEventListener('DOMContentLoaded', () => {
+    // This event listener is a fallback, but the primary logic
+    // is now handled by netlifyIdentity.on('init', ...)
+});

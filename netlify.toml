@@ -1,7 +1,6 @@
 [build]
   functions = "netlify/functions"
 
-# --- මේ කොටස අලුතින් එකතු කර ඇත ---
 [functions]
   included_files = ["knowledge.json"]
 
