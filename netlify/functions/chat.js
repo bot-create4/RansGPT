@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event) => {
-    // POST request vitharak accept karanna
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -11,7 +10,6 @@ exports.handler = async (event) => {
         const { query } = JSON.parse(event.body);
         const lowerCaseQuery = query.toLowerCase().trim();
 
-        // 1. Mulimma ape danuma (knowledge.json) eke balanna
         const knowledgePath = path.resolve(process.cwd(), 'knowledge.json');
         const knowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
         const trainedAnswer = knowledge.find(item => item.question.toLowerCase() === lowerCaseQuery);
@@ -20,8 +18,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, body: JSON.stringify({ reply: trainedAnswer.answer }) };
         }
         
-        // 2. Eke nethnam, OpenRouter API ekata call karanna
-        const { OPENROUTER_API_KEY } = process.env; // Netlify walin API Key eka ganna
+        const { OPENROUTER_API_KEY } = process.env;
 
         if (!OPENROUTER_API_KEY) {
             throw new Error("API Key NOT FOUND in Netlify environment variables!");
@@ -34,7 +31,8 @@ exports.handler = async (event) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "deepseek/chat",
+                // --- මෙතන තමයි වෙනස සිදුකළේ ---
+                model: "deepseek/deepseek-chat",
                 messages: [
                     { "role": "system", "content": "Your name is RansGPT, made by Ransara Devnath, train by Ransara Devnath." },
                     { "role": "user", "content": query }
