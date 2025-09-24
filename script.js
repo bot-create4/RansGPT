@@ -16,6 +16,14 @@ const toast = document.getElementById('toast');
 const themeToggle = document.getElementById('theme-toggle');
 const recentChatsList = document.getElementById('recent-chats-list');
 const newChatBtn = document.getElementById('new-chat-btn');
+const authContainer = document.getElementById('auth-container');
+const accountModalOverlay = document.getElementById('account-modal-overlay');
+const accountModal = document.getElementById('account-modal');
+const userNameInput = document.getElementById('user-name-input');
+const avatarSelectionContainer = document.getElementById('avatar-selection');
+const saveAccountBtn = document.getElementById('save-account-btn');
+const deleteAccountBtn = document.getElementById('delete-account-btn');
+const greetingH1 = document.querySelector('.greeting h1');
 
 // --- State Management ---
 let currentChat = [];
@@ -23,42 +31,209 @@ let allChats = {};
 let currentChatId = null;
 let lastUserMessage = '';
 let currentMessageText = '';
-let apiRequestController; 
+let apiRequestController;
+const avatarOptions = [
+    "icon",
+    "https://files.catbox.moe/6j6s3e.png",
+    "https://files.catbox.moe/x9w3tq.png",
+    "https://files.catbox.moe/q3f3a5.png"
+];
+let tempSelectedAvatar = "icon";
 
-// --- Core Functions ---
-function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => { toast.classList.remove('show'); }, 3000);
-}
-
-function showChatView(isNewChat = false) {
-    if (isNewChat || welcomeContainer.style.display !== 'none') {
-        welcomeContainer.style.display = 'none';
-        chatBox.style.display = 'flex';
-        chatBox.style.flexDirection = 'column';
+// --- UI Update Functions ---
+function updateUI(user) {
+    authContainer.innerHTML = ''; 
+    
+    if (user) {
+        document.body.style.display = 'flex'; 
+        
+        const userAvatarSrc = user.user_metadata.avatar || 'icon';
+        let profileIcon;
+        if (userAvatarSrc === 'icon') {
+            profileIcon = document.createElement('div');
+            profileIcon.classList.add('profile-icon');
+            profileIcon.innerHTML = `<i class="fas fa-user"></i>`;
+        } else {
+            profileIcon = document.createElement('img');
+            profileIcon.classList.add('profile-icon');
+            profileIcon.src = userAvatarSrc;
+        }
+        profileIcon.style.cursor = 'pointer';
+        profileIcon.addEventListener('click', openAccountModal);
+        authContainer.appendChild(profileIcon);
+        
+        greetingH1.textContent = `Hello, ${user.user_metadata.full_name || user.user_metadata.name || user.email.split('@')[0]}`;
+        
+        loadUserSpecificData(user);
+        
+    } else {
+        document.body.style.display = 'flex'; 
+        
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Login / Sign Up';
+        loginBtn.addEventListener('click', () => netlifyIdentity.open());
+        authContainer.appendChild(loginBtn);
+        
+        showWelcomeView();
+        greetingH1.textContent = `Hello, Guest`;
+        recentChatsList.innerHTML = '';
     }
 }
 
-function showWelcomeView() {
-    welcomeContainer.style.display = 'block';
-    chatBox.style.display = 'none';
-    chatBox.innerHTML = '';
+function openAccountModal() {
+    const user = netlifyIdentity.currentUser();
+    if (!user) return;
+
+    userNameInput.value = user.user_metadata.name || user.user_metadata.full_name || '';
+    tempSelectedAvatar = user.user_metadata.avatar || 'icon';
+    
+    avatarSelectionContainer.innerHTML = '';
+    avatarOptions.forEach(avatarSrc => {
+        let avatarChoice = (avatarSrc === 'icon') ? document.createElement('div') : document.createElement('img');
+        
+        if (avatarSrc === 'icon') {
+            avatarChoice.classList.add('avatar-choice', 'profile-icon');
+            avatarChoice.innerHTML = `<i class="fas fa-user"></i>`;
+        } else {
+            avatarChoice.classList.add('avatar-choice');
+            avatarChoice.src = avatarSrc;
+        }
+        
+        avatarChoice.dataset.src = avatarSrc;
+        if (avatarSrc === tempSelectedAvatar) {
+            avatarChoice.classList.add('selected');
+        }
+        
+        avatarChoice.addEventListener('click', () => {
+            document.querySelectorAll('.avatar-choice').forEach(el => el.classList.remove('selected'));
+            avatarChoice.classList.add('selected');
+            tempSelectedAvatar = avatarSrc;
+        });
+        avatarSelectionContainer.appendChild(avatarChoice);
+    });
+
+    accountModal.style.display = 'block';
+    accountModalOverlay.style.display = 'block';
 }
 
-// --- MODIFIED: addMessage function to render Markdown ---
+function closeAccountModal() {
+    accountModal.style.display = 'none';
+    accountModalOverlay.style.display = 'none';
+}
+
+function saveAccountSettings() {
+    const user = netlifyIdentity.currentUser();
+    const newName = userNameInput.value.trim();
+    
+    user.update({
+        data: {
+            name: newName,
+            avatar: tempSelectedAvatar
+        }
+    }).then(updatedUser => {
+        updateUI(updatedUser);
+        showToast("Settings saved successfully!");
+        closeAccountModal();
+        if (currentChat.length > 0) {
+            loadChat(currentChatId);
+        }
+    }).catch(error => {
+        console.error("Error updating user data:", error);
+        showToast("Failed to save settings.");
+    });
+}
+
+function deleteAccount() {
+    const isConfirmed = confirm("Are you sure? This will delete your Netlify account and all your chat history permanently.");
+    if (isConfirmed) {
+        const user = netlifyIdentity.currentUser();
+        localStorage.removeItem(`ransgpt_chats_${user.id}`);
+        user.delete().then(() => {
+            showToast("Account deleted successfully.");
+        }).catch(error => {
+            console.error("Error deleting account:", error);
+            showToast("Failed to delete account.");
+        });
+    }
+}
+
+function loadUserSpecificData(user) {
+    const savedChats = localStorage.getItem(`ransgpt_chats_${user.id}`);
+    allChats = savedChats ? JSON.parse(savedChats) : {};
+    updateRecentChatsList(user.id);
+    const savedTheme = localStorage.getItem('ransgpt_theme') || 'dark';
+    setTheme(savedTheme);
+}
+
+netlifyIdentity.on('init', user => updateUI(user));
+netlifyIdentity.on('login', user => { updateUI(user); netlifyIdentity.close(); });
+netlifyIdentity.on('logout', () => updateUI(null));
+
+function saveCurrentChat() {
+    const user = netlifyIdentity.currentUser();
+    if (!user || currentChat.length === 0) return;
+    if (!currentChatId) { currentChatId = 'chat-' + Date.now(); }
+    const title = currentChat[0].text.split(' ').slice(0, 5).join(' ');
+    allChats[currentChatId] = { title: title, messages: currentChat };
+    localStorage.setItem(`ransgpt_chats_${user.id}`, JSON.stringify(allChats));
+    updateRecentChatsList(user.id);
+}
+
+function loadChat(chatId) {
+    const user = netlifyIdentity.currentUser();
+    if (!user || !allChats[chatId]) return;
+    currentChatId = chatId;
+    currentChat = allChats[chatId].messages;
+    chatBox.innerHTML = '';
+    showChatView(true);
+    currentChat.forEach(msg => addMessage(msg.text, msg.sender));
+    updateRecentChatsList(user.id);
+    if (sidebar.classList.contains('open')) { toggleSidebar(); }
+}
+
+function updateRecentChatsList(userId) {
+    recentChatsList.innerHTML = '';
+    if (!userId) return;
+    const chatIds = Object.keys(allChats).reverse();
+    chatIds.forEach(chatId => {
+        const chat = allChats[chatId];
+        const li = document.createElement('li');
+        li.innerHTML = `<i class="far fa-comment-alt"></i> ${chat.title}`;
+        if (chatId === currentChatId) { li.classList.add('active'); }
+        li.addEventListener('click', () => loadChat(chatId));
+        recentChatsList.appendChild(li);
+    });
+}
+
+function startNewChat() {
+    const user = netlifyIdentity.currentUser();
+    if (!user) { netlifyIdentity.open(); return; }
+    currentChat = [];
+    currentChatId = null;
+    showWelcomeView();
+    updateRecentChatsList(user.id);
+    if (sidebar.classList.contains('open')) { toggleSidebar(); }
+}
+
 function addMessage(message, sender, isThinking = false) {
     showChatView();
+    const user = netlifyIdentity.currentUser();
     const messageId = 'msg-' + Date.now();
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', sender);
     messageElement.id = messageId;
-    
     let avatar;
     if (sender === 'user') {
-        avatar = document.createElement('div');
-        avatar.classList.add('avatar');
-        avatar.innerHTML = `<i class="fas fa-user"></i>`;
+        const userAvatarSrc = user?.user_metadata?.avatar || 'icon';
+        if (userAvatarSrc === 'icon') {
+            avatar = document.createElement('div');
+            avatar.classList.add('avatar');
+            avatar.innerHTML = `<i class="fas fa-user"></i>`;
+        } else {
+            avatar = document.createElement('img');
+            avatar.classList.add('avatar');
+            avatar.src = userAvatarSrc;
+        }
     } else { 
         avatar = document.createElement('img');
         avatar.classList.add('avatar');
@@ -66,28 +241,18 @@ function addMessage(message, sender, isThinking = false) {
         avatar.alt = 'RansGPT Logo';
     }
     messageElement.appendChild(avatar);
-
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
     if (isThinking) {
-        messageContent.innerHTML = `
-            <div class="thinking-animation">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>`;
+        messageContent.innerHTML = `<div class="thinking-animation"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
     } else {
         const p = document.createElement('p');
-        
         if (sender === 'bot') {
-            // Convert Markdown to safe HTML for bot messages
             const dirtyHtml = marked.parse(message);
             p.innerHTML = DOMPurify.sanitize(dirtyHtml);
         } else {
-            // For user messages, just display plain text for security
             p.textContent = message;
         }
-
         messageContent.appendChild(p);
         if (sender === 'bot') {
             const optionsContainer = document.createElement('div');
@@ -102,46 +267,29 @@ function addMessage(message, sender, isThinking = false) {
     chatBox.parentElement.parentElement.scrollTop = chatBox.parentElement.parentElement.scrollHeight;
     return messageId;
 }
-// --- END MODIFICATION ---
 
 async function sendMessage(queryText) {
     if (sendBtn.classList.contains('is-stopping')) {
-        if(apiRequestController) {
-            apiRequestController.abort();
-        }
+        if(apiRequestController) { apiRequestController.abort(); }
         return;
     }
-
     const query = queryText || userInput.value.trim();
     if (query === '') return;
-
     addMessage(query, 'user');
     currentChat.push({ sender: 'user', text: query });
     lastUserMessage = query;
     userInput.value = '';
-    
     toggleSendButton(true);
-
     const thinkingMessageId = addMessage('', 'bot', true);
-    
     apiRequestController = new AbortController();
-
     try {
-        const response = await fetch('/.netlify/functions/chat', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ query: query }),
-            signal: apiRequestController.signal
-        });
-
+        const response = await fetch('/.netlify/functions/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query }), signal: apiRequestController.signal });
         if (!response.ok) throw new Error('Network response error');
-        
         const data = await response.json();
         document.getElementById(thinkingMessageId)?.remove();
         addMessage(data.reply, 'bot');
         currentChat.push({ sender: 'bot', text: data.reply });
         saveCurrentChat();
-
     } catch (error) {
         if (error.name === 'AbortError') {
             console.log('Fetch aborted by user.');
@@ -178,52 +326,16 @@ function toggleSendButton(isSending = false) {
     }
 }
 
-
-function toggleSidebar() { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); }
-function saveCurrentChat() {
-    if (currentChat.length === 0) return;
-    if (!currentChatId) { currentChatId = 'chat-' + Date.now(); }
-    const title = currentChat[0].text.split(' ').slice(0, 5).join(' ');
-    allChats[currentChatId] = { title: title, messages: currentChat };
-    localStorage.setItem('ransgpt_chats', JSON.stringify(allChats));
-    updateRecentChatsList();
-}
-function loadChat(chatId) {
-    if (!allChats[chatId]) return;
-    currentChatId = chatId;
-    currentChat = allChats[chatId].messages;
-    chatBox.innerHTML = '';
-    showChatView(true);
-    currentChat.forEach(msg => addMessage(msg.text, msg.sender));
-    updateRecentChatsList();
-    toggleSidebar();
-}
-function updateRecentChatsList() {
-    recentChatsList.innerHTML = '';
-    const chatIds = Object.keys(allChats).reverse();
-    chatIds.forEach(chatId => {
-        const chat = allChats[chatId];
-        const li = document.createElement('li');
-        li.innerHTML = `<i class="far fa-comment-alt"></i> ${chat.title}`;
-        if (chatId === currentChatId) { li.classList.add('active'); }
-        li.addEventListener('click', () => loadChat(chatId));
-        recentChatsList.appendChild(li);
-    });
-}
-function startNewChat() {
-    currentChat = [];
-    currentChatId = null;
-    showWelcomeView();
-    updateRecentChatsList();
-    if (sidebar.classList.contains('open')) { toggleSidebar(); }
-}
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('ransgpt_theme', theme);
     themeToggle.checked = theme === 'dark';
 }
+
 function showOptionsMenu(messageText) { currentMessageText = messageText; optionsMenuOverlay.style.display = 'block'; optionsMenu.classList.add('show'); }
 function hideOptionsMenu() { optionsMenuOverlay.style.display = 'none'; optionsMenu.classList.remove('show'); }
+
+function toggleSidebar() { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); }
 
 // --- Event Listeners ---
 menuIcon.addEventListener('click', toggleSidebar);
@@ -252,11 +364,10 @@ document.getElementById('copy-btn').addEventListener('click', () => {
 document.getElementById('share-btn').addEventListener('click', () => { showToast('Share feature is coming soon!'); hideOptionsMenu(); });
 document.getElementById('export-btn').addEventListener('click', () => { showToast('Export feature is coming soon!'); hideOptionsMenu(); });
 
-themeToggle.addEventListener('change', () => { setTheme(themeToggle.checked ? 'dark' : 'light'); });
-
-document.addEventListener('DOMContentLoaded', () => {
-    const savedChats = localStorage.getItem('ransgpt_chats');
-    if (savedChats) { allChats = JSON.parse(savedChats); updateRecentChatsList(); }
-    const savedTheme = localStorage.getItem('ransgpt_theme') || 'dark';
-    setTheme(savedTheme);
+themeToggle.addEventListener('change', () => {
+    setTheme(themeToggle.checked ? 'dark' : 'light');
 });
+
+saveAccountBtn.addEventListener('click', saveAccountSettings);
+deleteAccountBtn.addEventListener('click', deleteAccount);
+accountModalOverlay.addEventListener('click', closeAccountModal);
