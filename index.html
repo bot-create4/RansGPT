@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RansGPT - AI Assistant</title>
+    
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
         :root {
@@ -138,34 +141,7 @@
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <button class="close-btn" id="close-sidebar-btn"><i class="fas fa-times"></i></button>
-            <div class="title">RansGPT</div>
-        </div>
-        <div class="sidebar-content">
-            <ul class="sidebar-list">
-                <li id="new-chat-btn"><i class="fas fa-edit"></i> New Chat</li>
-            </ul>
-            <div class="sidebar-section">
-                <h3>Recent</h3>
-                <ul class="sidebar-list" id="recent-chats-list"></ul>
-            </div>
-            <div class="sidebar-section">
-                <h3>Settings</h3>
-                <ul class="sidebar-list">
-                    <li>
-                        <div class="toggle-switch">
-                            <span><i class="fas fa-moon"></i> Dark Theme</span>
-                            <label class="switch">
-                                <input type="checkbox" id="theme-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </aside>
+        </aside>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <div class="app-container">
@@ -203,35 +179,10 @@
     
     <div class="options-menu-overlay" id="options-menu-overlay"></div>
     <div class="options-menu" id="options-menu">
-        <div class="options-menu-header"><div class="options-menu-handle"></div></div>
-        <div class="options-grid">
-            <div class="option-item" id="redo-btn"><div class="icon"><i class="fas fa-redo"></i></div><span>Redo</span></div>
-            <div class="option-item" id="good-btn"><div class="icon"><i class="fas fa-thumbs-up"></i></div><span>Good</span></div>
-            <div class="option-item" id="bad-btn"><div class="icon"><i class="fas fa-thumbs-down"></i></div><span>Bad</span></div>
-            <div class="option-item" id="read-btn"><div class="icon"><i class="fas fa-volume-up"></i></div><span>Read</span></div>
-        </div>
-        <ul class="options-list">
-            <li id="copy-btn"><i class="fas fa-copy"></i> Copy</li>
-            <li id="share-btn"><i class="fas fa-share-alt"></i> Share conversation</li>
-            <li id="export-btn"><i class="fas fa-file-export"></i> Export to...</li>
-        </ul>
     </div>
 
     <div class="modal-overlay" id="account-modal-overlay"></div>
     <div class="account-modal" id="account-modal">
-        <h2>Account Settings</h2>
-        <div class="form-group">
-            <label for="user-name-input">Your Name</label>
-            <input type="text" id="user-name-input" placeholder="Enter your name">
-        </div>
-        <div class="form-group">
-            <label>Choose Your Avatar</label>
-            <div class="avatar-selection" id="avatar-selection"></div>
-        </div>
-        <div class="modal-buttons">
-            <button class="delete-btn" id="delete-account-btn">Delete Account & Data</button>
-            <button class="save-btn" id="save-account-btn">Save</button>
-        </div>
     </div>
     
     <div class="toast" id="toast"></div>
