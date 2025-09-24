@@ -23,7 +23,7 @@
             --font-family: 'Roboto', sans-serif;
             --hover-color: #282A2C;
             --sidebar-width: 280px;
-            --danger-color: #e53935;
+            --danger-color: #e57373;
         }
 
         [data-theme="light"] {
@@ -51,6 +51,7 @@
         .sidebar-list li:hover { background-color: var(--hover-color); }
         .sidebar-list li.active { background-color: var(--accent-color); color: var(--background-color); }
         .sidebar-list li i { width: 20px; text-align: center; }
+        .sidebar-credit { margin-top: auto; padding: 20px 0 10px 0; text-align: center; font-size: 12px; color: var(--secondary-text-color); }
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
 
@@ -143,6 +144,19 @@
         .modal-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
         .delete-btn { background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 14px; }
         .save-btn { background-color: var(--accent-color); border: none; color: var(--background-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        [data-netlify-identity-widget] { --modal-background: var(--background-color); --text-color: var(--text-color); --primary-color: var(--accent-color); --primary-button-background: var(--accent-color); --primary-button-text-color: #131314; --border-color: var(--secondary-text-color); --input-background: var(--surface-color); --input-text-color: var(--text-color); --error-color: var(--danger-color); }
+        .modal-container { background-color: var(--background-color) !important; color: var(--text-color) !important; border-radius: 12px; }
+        .modal-header, .form-header { color: var(--text-color) !important; text-align: center; }
+        .modal-header h1:before { content: "Welcome to RansGPT"; display: block; font-size: 16px; font-weight: 500; color: var(--text-color); margin-bottom: 16px; }
+        .form-control { background-color: var(--surface-color) !important; color: var(--text-color) !important; border: 1px solid var(--secondary-text-color) !important; border-radius: 8px !important; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .form-control:focus { border-color: var(--accent-color) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent) !important; }
+        .btn, .btn:focus { background-color: var(--accent-color) !important; color: #131314 !important; font-weight: bold !important; border-radius: 20px !important; transition: opacity 0.3s ease; }
+        .btn:hover { opacity: 0.85; }
+        .btn-github, .btn-google { background: var(--surface-color) !important; color: var(--text-color) !important; border: 1px solid var(--secondary-text-color) !important; }
+        .btn-github:before, .btn-google:before { filter: invert(1); }
+        .forgot-password, .tab, .user-greeting a, .email-label span { color: var(--secondary-text-color) !important; }
+        .tab.active { color: var(--text-color) !important; border-bottom-color: var(--accent-color) !important; }
+        .form-error { color: var(--danger-color) !important; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -174,15 +188,16 @@
                 </ul>
             </div>
         </div>
+        <div class="sidebar-credit">Made by Ransara Devnath</div>
     </aside>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
     <div class="app-container">
         <div class="top-bar">
             <div class="menu-icon" id="menu-icon"><i class="fas fa-bars"></i></div>
             <div class="title">RansGPT</div>
             <div class="profile-icon-container" id="profile-icon-container">
-                </div>
+                <div class="profile-icon"><i class="fas fa-user"></i></div>
+            </div>
         </div>
         <main class="main-content" id="main-content">
             <div class="content-wrapper">
