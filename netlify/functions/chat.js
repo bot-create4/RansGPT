@@ -14,48 +14,60 @@ exports.handler = async (event) => {
             throw new Error("Invalid history format or last message is not from user.");
         }
         
-        let query = lastMessage.text;
+        let query = lastMessage.text || ""; // Ensure query is a string even if null
+        const isImageQuery = !!lastMessage.image; // Check if an image was sent
+        
         let selectedModel;
         let systemPrompt;
 
-        // --- NEW: Command-based Model Selection Logic ---
+        // --- UPDATED: Model Selection Logic with Image Handling ---
 
         const trimmedQuery = query.trim().toLowerCase();
         
-        if (trimmedQuery.startsWith('/g ')) {
+        // If an image is present, ALWAYS use Gemini Flash
+        if (isImageQuery) {
             selectedModel = "google/gemini-flash-1.5";
-            systemPrompt = "You are RansGPT, a helpful AI assistant. Your creator, who integrated you into this application, is Ransara Devnath. You are powered by Google's Gemini Flash model to provide intelligent and fast responses. Your name is RansGPT.";
+            systemPrompt = "You are RansGPT, a helpful AI assistant with vision capabilities. Your creator is Ransara Devnath. You are powered by RansGPT model. Analyze the image provided by the user and answer their questions accurately. Your name is RansGPT.";
+            console.log("Image detected: Forcing use of Google Gemini Flash");
+
+        } else if (trimmedQuery.startsWith('/g ')) {
+            selectedModel = "google/gemini-flash-1.5";
+            systemPrompt = "You are RansGPT, a helpful AI assistant. Your creator, who integrated you into this application, is Ransara Devnath. You are powered by RansGPT model to provide intelligent and fast responses. Your name is RansGPT.";
             query = query.substring(3).trim(); // Remove '/g ' from the query
             console.log("Command Override: Using Google Gemini Flash");
 
         } else if (trimmedQuery.startsWith('/d ')) {
             selectedModel = "deepseek/deepseek-chat";
-            systemPrompt = "You are RansGPT, an expert AI programmer and full-stack developer assistant created and trained by Ransara Devnath. You are powered by the DeepSeek Chat model. Your primary goal is to help users by providing complete, functional, and well-explained code. Your name is RansGPT.";
+            systemPrompt = "You are RansGPT, an expert AI programmer and full-stack developer assistant created and trained by Ransara Devnath. You are powered by the RansGPT Chat model. Your primary goal is to help users by providing complete, functional, and well-explained code. Your name is RansGPT.";
             query = query.substring(3).trim(); // Remove '/d ' from the query
             console.log("Command Override: Using DeepSeek Chat");
 
         } else {
-            // Default 50/50 random selection
+            // Default 50/50 random selection for text-only queries
             if (Math.random() < 0.5) {
                 selectedModel = "google/gemini-flash-1.5";
-                systemPrompt = "You are RansGPT, a helpful AI assistant. Your creator, who integrated you into this application, is Ransara Devnath. You are powered by Google's Gemini Flash model to provide intelligent and fast responses. Your name is RansGPT.";
+                systemPrompt = "You are RansGPT, a helpful AI assistant. Your creator, who integrated you into this application, is Ransara Devnath. You are powered by RansGPT model to provide intelligent and fast responses. Your name is RansGPT.";
                 console.log("Random Selection: Using Google Gemini Flash");
             } else {
                 selectedModel = "deepseek/deepseek-chat";
-                systemPrompt = "You are RansGPT, an expert AI programmer and full-stack developer assistant created and trained by Ransara Devnath. You are powered by the DeepSeek Chat model. Your primary goal is to help users by providing complete, functional, and well-explained code. Your name is RansGPT.";
+                systemPrompt = "You are RansGPT, an expert AI programmer and full-stack developer assistant created and trained by Ransara Devnath. You are powered by the RansGPT Chat model. Your primary goal is to help users by providing complete, functional, and well-explained code. Your name is RansGPT.";
                 console.log("Random Selection: Using DeepSeek Chat");
             }
         }
         
         // --- END: Model Selection Logic ---
 
+        // Check against local knowledge base (only for text queries)
         const lowerCaseQuery = query.toLowerCase().trim();
-        const knowledgePath = path.resolve(process.cwd(), 'knowledge.json');
-        const knowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
-        const trainedAnswer = knowledge.find(item => item.question.toLowerCase() === lowerCaseQuery);
-        
-        if (trainedAnswer) {
-            return { statusCode: 200, body: JSON.stringify({ reply: trainedAnswer.answer }) };
+        if (!isImageQuery && lowerCaseQuery) {
+            const knowledgePath = path.resolve(process.cwd(), 'knowledge.json');
+            const knowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
+            const trainedAnswer = knowledge.find(item => item.question.toLowerCase() === lowerCaseQuery);
+            
+            if (trainedAnswer) {
+                console.log("Found a trained answer in knowledge.json");
+                return { statusCode: 200, body: JSON.stringify({ reply: trainedAnswer.answer }) };
+            }
         }
         
         const { OPENROUTER_API_KEY } = process.env;
@@ -67,7 +79,26 @@ exports.handler = async (event) => {
         // Update the last message in history to remove the command before sending to AI
         history[history.length - 1].text = query;
 
+        // --- UPDATED: Message formatting for API (Handles Images) ---
         const messagesForApi = history.map(message => {
+            // If it's a user message with an image, format it for multimodal input
+            if (message.sender === 'user' && message.image) {
+                const content = [];
+                // Add text part only if text exists
+                if (message.text) {
+                    content.push({ type: "text", text: message.text });
+                }
+                // Add the image part
+                content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: message.image // The frontend sends a base64 data URI
+                    }
+                });
+                return { role: 'user', content: content };
+            }
+            
+            // For all other messages (bot messages or text-only user messages)
             return {
                 role: message.sender === 'user' ? 'user' : 'assistant',
                 content: message.text
