@@ -1,398 +1,543 @@
-<!DOCTYPE html><html lang="si" data-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RansGPT - AI Assistant by Ransara Devnath</title><meta name="description" content="RansGPT is a personalized AI chat assistant, trained and developed by Ransara Devnath, offering intelligent conversations and answers in Sri Lanka."><meta name="keywords" content="RansGPT, AI Chat, Ransara Devnath, Artificial Intelligence, Sri Lanka, Sinhala AI, Deepseek API, Chatbot"><meta name="author" content="Ransara Devnath"><meta property="og:title" content="RansGPT - AI Assistant"><meta property="og:description" content="Intelligent conversations with a personalized AI developed by Ransara Devnath."><meta property="og:image" content="[https://files.catbox.moe/fj08ro.jpg](https://files.catbox.moe/fj08ro.jpg)"><meta property="og:url" content="[https://ransgpt-v3-ai.netlify.app/](https://ransgpt-v3-ai.netlify.app/)"><meta property="og:type" content="website"><link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)"><link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)"><link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin><link href="[https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap](https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap)" rel="stylesheet"><link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css)"><script src="[https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js)" defer></script><script src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)" defer></script><script src="[https://cdn.jsdelivr.net/npm/marked/marked.min.js](https://cdn.jsdelivr.net/npm/marked/marked.min.js)" defer></script><script src="[https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js](https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js)" defer></script><style>:root{--background-color:#131314;--surface-color:#1E1F20;--text-color:#E3E3E3;--secondary-text-color:#9AA0A6;--accent-color:#8AB4F8;--font-family:'Roboto',sans-serif;--hover-color:#282A2C;--sidebar-width:280px;--danger-color:#e57373}[data-theme=light]{--background-color:#fff;--surface-color:#F0F4F9;--text-color:#1F1F1F;--secondary-text-color:#5F6368;--hover-color:#E8F0FE;--danger-color:#d32f2f}*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--font-family);background-color:var(--background-color);color:var(--text-color);display:flex;height:100vh;overflow:hidden}.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100%;background-color:var(--surface-color);z-index:1001;transform:translateX(-100%);transition:transform .3s ease;padding:16px;display:flex;flex-direction:column;border-right:1px solid var(--hover-color)}.sidebar.open{transform:translateX(0)}.sidebar-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}.sidebar-header .close-btn{background:0 0;border:none;color:var(--text-color);font-size:20px;cursor:pointer}.sidebar-header .title{font-size:20px;font-weight:500}.sidebar-content{flex-grow:1;overflow-y:auto}.sidebar-section{margin-bottom:20px}.sidebar-section h3{font-size:14px;color:var(--secondary-text-color);margin-bottom:10px;padding:0 12px}.sidebar-list{list-style:none}.sidebar-list li{display:flex;align-items:center;width:100%;gap:16px;padding:10px 12px;border-radius:20px;cursor:pointer;transition:background-color .2s;font-size:14px}.sidebar-list li:hover{background-color:var(--hover-color)}.sidebar-list li.active{background-color:var(--accent-color);color:var(--background-color)}.sidebar-list li i{width:20px;text-align:center}.sidebar-credit{margin-top:auto;padding:20px 0 10px;text-align:center;font-size:12px;color:var(--secondary-text-color)}.sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}.sidebar-overlay.open{opacity:1;pointer-events:auto}.app-container{width:100%;display:flex;flex-direction:column;height:100vh}.top-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;flex-shrink:0;position:relative}.top-bar .menu-icon{font-size:20px;cursor:pointer;color:var(--text-color)}.profile-icon-container{position:relative}.profile-icon{background-color:var(--surface-color);width:32px;height:32px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:18px;cursor:pointer;border:1px solid var(--secondary-text-color);object-fit:cover}.profile-dropdown{position:absolute;top:45px;right:0;background-color:var(--surface-color);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:1002;width:200px;padding:8px;display:none}.profile-dropdown.show{display:block}.profile-dropdown ul{list-style:none}.profile-dropdown li{padding:10px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px}.profile-dropdown li:hover{background-color:var(--hover-color)}.profile-dropdown li.danger:hover{background-color:var(--danger-color);color:#fff}.top-bar .title{font-size:20px;font-weight:500}.main-content{flex-grow:1;overflow-y:auto;padding:0 16px;display:flex;flex-direction:column;align-items:center}.content-wrapper{width:100%;max-width:800px;padding-top:24px;padding-bottom:20px}.greeting{animation:fadeInUp .8s ease-out forwards}@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.greeting h1{font-size:clamp(2rem,10vw,3.5rem);font-weight:400;background:-webkit-linear-gradient(45deg,#4285f4,#9b72cb,#d96570,#f2a600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}.greeting p{font-size:1.25rem;color:var(--secondary-text-color)}.suggestion-cards,.chat-box{width:100%;max-width:800px}.suggestion-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:40px}.card{background-color:var(--surface-color);border-radius:12px;padding:16px;cursor:pointer;transition:background-color .2s,transform .2s;height:100px;position:relative;overflow:hidden}.card:hover{background-color:var(--hover-color);transform:translateY(-4px)}.card p{font-size:14px}.card .card-icon{position:absolute;bottom:12px;right:12px;font-size:24px;color:var(--secondary-text-color);background-color:var(--background-color);border-radius:50%;width:40px;height:40px;display:flex;justify-content:center;align-items:center}.chat-box{padding:20px 0;display:none;flex-direction:column}.message{margin-bottom:24px;display:flex;align-items:flex-start;gap:16px;max-width:90%;animation:fadeIn .5s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.message.bot{align-self:flex-start}.message.user{align-self:flex-end;flex-direction:row-reverse}.message .avatar{width:32px;height:32px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:700;flex-shrink:0;object-fit:cover;font-size:16px;text-transform:uppercase}.message.user .avatar{background-color:var(--surface-color)}.message.bot .avatar{background:0 0}.message-content{display:flex;flex-direction:column;width:100%;position:relative}.message.user .message-content{align-items:flex-end}.message-content p{padding-top:4px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;font-size:.95rem}.message.user .message-content p.collapsible{max-height:150px;overflow:hidden;position:relative;padding-bottom:20px;cursor:pointer}.message.user .message-content p.collapsible::after{content:'▾';position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:16px;color:var(--secondary-text-color)}.message.user .message-content p.collapsible.expanded{max-height:none;padding-bottom:0}.message.user .message-content p.collapsible.expanded::after{content:'▴'}.message p a.chat-link{color:var(--accent-color);text-decoration:underline}.message p b,.message p strong{font-weight:700}.message p em,.message p i{font-style:italic}.message p code:not(pre>code){background-color:var(--hover-color);border-radius:4px;padding:2px 6px;font-family:monospace;font-size:.9em}.code-block{background-color:#0d0d0d;border-radius:12px;margin:12px 0;overflow:hidden;border:1px solid #333}.code-block-header{display:flex;justify-content:space-between;align-items:center;background-color:#282a2c;padding:8px 12px;font-size:12px;color:var(--secondary-text-color);text-transform:uppercase}.copy-code-btn{background:0 0;border:none;color:var(--secondary-text-color);cursor:pointer;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:6px}.copy-code-btn:hover{background-color:var(--hover-color);color:var(--text-color)}.message p pre{margin:0;border-radius:0}.message p pre code.hljs{padding:16px}.message p ol,.message p ul{margin-left:20px;margin-top:10px;margin-bottom:10px}.message p li{margin-bottom:5px}.thinking-animation{display:flex;align-items:center;gap:10px;padding:10px 0}.typing-dot{width:8px;height:8px;background-color:var(--secondary-text-color);border-radius:50%;animation:bounce 1.4s infinite ease-in-out both}.typing-dot:nth-child(1){animation-delay:-.32s}.typing-dot:nth-child(2){animation-delay:-.16s}@keyframes bounce{0%,100%,80%{transform:scale(0)}40%{transform:scale(1)}}.message-actions{display:flex;gap:8px;align-items:center;margin-top:8px;height:24px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}.message:hover .message-actions{visibility:visible;opacity:1}.message.user .message-actions{justify-content:flex-end}.message-actions.visible{opacity:1;visibility:visible}.action-icon{cursor:pointer;color:var(--secondary-text-color);padding:4px;font-size:16px}.options-menu-overlay,.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;display:none;opacity:0;transition:opacity .3s ease}.modal-overlay.show{display:block;opacity:1}.options-menu{position:fixed;bottom:0;left:0;width:100%;background-color:#282a2c;border-top-left-radius:16px;border-top-right-radius:16px;z-index:1001;padding:16px 32px;transform:translateY(100%);transition:transform .3s ease-out}.options-menu.show{transform:translateY(0)}.options-menu-header{display:flex;justify-content:center;margin-bottom:16px}.options-menu-handle{width:40px;height:4px;background-color:var(--secondary-text-color);border-radius:2px}.options-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center;margin-bottom:24px}.option-item{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}.option-item .icon{width:48px;height:48px;background-color:var(--surface-color);border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:20px}.option-item span{font-size:12px}.options-list{list-style:none}.options-list li{padding:14px 0;border-top:1px solid var(--surface-color);display:flex;align-items:center;gap:16px;cursor:pointer}.options-list li i{width:20px;text-align:center}.input-area{padding:8px 16px 16px;background-color:var(--background-color);flex-shrink:0;width:100%;position:relative}.input-wrapper{max-width:800px;margin:0 auto;display:flex;flex-direction:column}.input-controls{display:flex;align-items:center;background-color:var(--surface-color);border-radius:28px;padding:4px 12px;width:100%}.input-controls #user-input{flex-grow:1;border:none;background:0 0;color:var(--text-color);padding:12px;font-size:16px;outline:0;resize:none;max-height:100px;overflow-y:auto}.icon-btn{background:0 0;border:none;color:var(--secondary-text-color);font-size:20px;cursor:pointer;padding:8px;border-radius:50%;transition:background-color .2s,color .2s;display:flex;justify-content:center;align-items:center}.icon-btn:hover{background-color:var(--hover-color)}#mic-btn.is-listening{color:var(--danger-color)}#send-btn.is-stopping{background-color:var(--hover-color);border:1px solid var(--secondary-text-color)}.disclaimer{font-size:12px;color:var(--secondary-text-color);text-align:center;padding-top:10px;max-width:800px;margin:0 auto}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background-color:var(--surface-color);color:var(--text-color);padding:12px 24px;border-radius:8px;z-index:2000;box-shadow:0 4px 12px rgba(0,0,0,.3);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s,bottom .3s}.toast.show{bottom:30px;opacity:1;visibility:visible}.confirm-toast{width:90%;max-width:320px;text-align:center}.confirm-toast .toast-buttons{display:flex;justify-content:center;gap:12px;margin-top:16px}.confirm-toast button{border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:700}.confirm-toast .confirm-yes{background-color:var(--danger-color);color:#fff}.confirm-toast .confirm-no{background-color:var(--hover-color);color:var(--text-color)}.toggle-switch{display:flex;align-items:center;justify-content:space-between;width:100%}.switch{position:relative;display:inline-block;width:34px;height:20px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}.slider:before{position:absolute;content:"";height:12px;width:12px;left:4px;bottom:4px;background-color:#fff;transition:.4s;border-radius:50%}.switch input:checked+.slider{background-color:var(--accent-color)}.switch input:checked+.slider:before{transform:translateX(14px)}.account-modal,.terms-modal,.edit-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:var(--surface-color);border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.5);z-index:1001;width:90%;max-width:500px;padding:24px;display:none;animation:fadeIn .3s}.account-modal h2,.terms-modal h2,.edit-modal h2{margin-bottom:20px;text-align:center}.form-group{margin-bottom:16px}.form-group label{display:block;margin-bottom:8px;font-size:14px;color:var(--secondary-text-color)}.form-group input,.form-group textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--secondary-text-color);background-color:var(--background-color);color:var(--text-color);font-size:16px}.form-group textarea{resize:vertical;min-height:100px}.avatar-selection{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}.avatar-choice{width:50px;height:50px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .2s;object-fit:cover}.avatar-choice.selected{border-color:var(--accent-color)}.modal-buttons{display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:24px}.delete-btn{background:0 0;border:none;color:var(--danger-color);cursor:pointer;font-size:14px;margin-right:auto}.save-btn{background-color:var(--accent-color);border:none;color:var(--background-color);padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:700}.terms-content{max-height:300px;overflow-y:auto;padding-right:10px;margin-bottom:20px;font-size:14px;line-height:1.6;color:var(--secondary-text-color)}.terms-content h3{color:var(--text-color);margin-top:16px;margin-bottom:8px}#file-preview-container{background-color:var(--surface-color);padding:8px;border-radius:16px;margin-bottom:10px;display:none;align-self:flex-start;max-width:300px;position:relative;animation:fadeIn .3s}.file-preview-wrapper{display:flex;align-items:center;gap:10px}.file-preview{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--secondary-text-color);flex-shrink:0}.file-preview img{width:100%;height:100%;object-fit:cover;border-radius:12px}.file-info{display:flex;flex-direction:column;gap:4px;overflow:hidden}.file-info span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-name{font-size:14px;color:var(--text-color)}.file-size{font-size:12px;color:var(--secondary-text-color)}#remove-file-btn{position:absolute;top:0;right:0;background-color:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;padding:0;transform:translate(25%,-25%)}.message-content .sent-file img{border-radius:12px;margin-top:8px;max-width:300px;max-height:300px;object-fit:contain;cursor:pointer;background-color:var(--hover-color)}.sidebar-list .chat-title-wrapper{display:flex;align-items:center;width:100%;gap:16px}.sidebar-list .chat-title-wrapper .chat-title-text{flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar-list li .delete-chat-btn{margin-left:auto;visibility:hidden;opacity:0;transition:opacity .2s ease;font-size:14px;padding:4px}.sidebar-list li:hover .delete-chat-btn{visibility:visible;opacity:.7}.sidebar-list li .delete-chat-btn:hover{opacity:1;color:var(--danger-color)}.avatar-initial{display:flex;align-items:center;justify-content:center}.avatar-initial.letter-a{background-color:#F44336}.avatar-initial.letter-b{background-color:#E91E63}.avatar-initial.letter-c{background-color:#9C27B0}.avatar-initial.letter-d{background-color:#673AB7}.avatar-initial.letter-e{background-color:#3F51B5}.avatar-initial.letter-f{background-color:#2196F3}.avatar-initial.letter-g{background-color:#03A9F4}.avatar-initial.letter-h{background-color:#00BCD4}.avatar-initial.letter-i{background-color:#009688}.avatar-initial.letter-j{background-color:#4CAF50}.avatar-initial.letter-k{background-color:#8BC34A}.avatar-initial.letter-l{background-color:#CDDC39}.avatar-initial.letter-m{background-color:#FFEB3B;color:#424242}.avatar-initial.letter-n{background-color:#FFC107}.avatar-initial.letter-o{background-color:#FF9800}.avatar-initial.letter-p{background-color:#FF5722}.avatar-initial.letter-q{background-color:#795548}.avatar-initial.letter-r{background-color:#607D8B}.avatar-initial.letter-s{background-color:#4DB6AC}.avatar-initial.letter-t{background-color:#F06292}.avatar-initial.letter-u{background-color:#9575CD}.avatar-initial.letter-v{background-color:#7986CB}.avatar-initial.letter-w{background-color:#64B5F6}.avatar-initial.letter-x{background-color:#4DD0E1}.avatar-initial.letter-y{background-color:#81C784}.avatar-initial.letter-z{background-color:#AED581}</style></head><body><aside class="sidebar" id="sidebar"><div class="sidebar-header"><button class="close-btn" id="close-sidebar-btn"><i class="fas fa-times"></i></button><div class="title">RansGPT</div></div><div class="sidebar-content"><ul class="sidebar-list"><li id="new-chat-btn"><i class="fas fa-edit"></i> New Chat</li></ul><div class="sidebar-section"><h3>Recent</h3><ul class="sidebar-list" id="recent-chats-list"></ul></div><div class="sidebar-section"><h3>Settings</h3><ul class="sidebar-list"><li><div class="toggle-switch"><span><i class="fas fa-moon"></i> Dark Theme</span><label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label></div></li></ul></div></div><div class="sidebar-credit">Made by Ransara Devnath</div></aside><div class="sidebar-overlay" id="sidebar-overlay"></div><div class="app-container"><div class="top-bar"><div class="menu-icon" id="menu-icon"><i class="fas fa-bars"></i></div><div class="title">RansGPT</div><div class="profile-icon-container" id="profile-icon-container"><div class="profile-icon"><i class="fas fa-user"></i></div></div></div><main class="main-content" id="main-content"><div class="content-wrapper"><div id="welcome-container"><div class="greeting"><h1>Hello, Guest</h1><p>How can I help you today?</p></div><div class="suggestion-cards"><div class="card" data-prompt="Write a short story about a friendly robot"><p>Write a short story about a friendly robot</p><div class="card-icon"><i class="fas fa-pen"></i></div></div><div class="card" data-prompt="Explain quantum computing in simple terms"><p>Explain quantum computing in simple terms</p><div class="card-icon"><i class="fas fa-lightbulb"></i></div></div><div class="card" data-prompt="Suggest some fun activities for a weekend trip"><p>Suggest some fun activities for a weekend trip</p><div class="card-icon"><i class="fas fa-compass"></i></div></div><div class="card" data-prompt="Create a workout plan for a beginner"><p>Create a workout plan for a beginner</p><div class="card-icon"><i class="fas fa-dumbbell"></i></div></div></div></div><div class="chat-box" id="chat-box"></div></div></main><div class="input-area" id="input-area"><div class="input-wrapper"><div id="file-preview-container"></div><div class="input-controls"><label for="file-upload" class="icon-btn" title="Attach File"><i class="fas fa-paperclip"></i></label><input type="file" id="file-upload" style="display:none"><input type="text" id="user-input" placeholder="Ask RansGPT"><button class="icon-btn" id="mic-btn" title="Voice Input"><i class="fas fa-microphone"></i></button><button class="icon-btn" id="send-btn" title="Send" style="display:none"><i class="fas fa-arrow-up"></i></button></div></div><p class="disclaimer">RansGPT can make mistakes. Consider checking important information.</p></div></div><div class="options-menu-overlay" id="options-menu-overlay"></div><div class="options-menu" id="options-menu"><div class="options-menu-header"><div class="options-menu-handle"></div></div><div class="options-grid"><div class="option-item" id="good-btn"><div class="icon"><i class="fas fa-thumbs-up"></i></div><span>Good</span></div><div class="option-item" id="bad-btn"><div class="icon"><i class="fas fa-thumbs-down"></i></div><span>Bad</span></div><div class="option-item" id="read-btn"><div class="icon"><i class="fas fa-volume-up"></i></div><span>Read</span></div></div><ul class="options-list"><li id="copy-btn"><i class="fas fa-copy"></i> Copy</li><li id="share-btn"><i class="fas fa-share-alt"></i> Share</li><li id="export-btn"><i class="fas fa-file-export"></i> Export</li></ul></div><div class="modal-overlay" id="account-modal-overlay"></div><div class="account-modal" id="account-modal"><h2>Account Settings</h2><div class="form-group"><label for="user-name-input">Your Name</label><input type="text" id="user-name-input" placeholder="Enter your name"></div><div class="form-group"><label>Choose Your Avatar</label><div class="avatar-selection" id="avatar-selection"></div></div><div class="modal-buttons"><button class="delete-btn" id="delete-account-btn">Delete Account & Data</button><button class="save-btn" id="save-account-btn">Save</button></div></div><div class="modal-overlay" id="terms-modal-overlay"></div><div class="terms-modal" id="terms-modal"><h2>Welcome to RansGPT!</h2><div class="terms-content"><h3>About RansGPT</h3><p> This is a personalized AI assistant.<br><br> - <b>Made by:</b> Ransara Devnath<br> - <b>Trained by:</b> Ransara Devnath<br> - <b>Security Protection by:</b> Netlify<br><br> Special thanks to the Gemini 2.5 Pro module for the invaluable help in training and developing RansGPT. </p><h3>Terms and Conditions</h3><p> By using RansGPT, you agree to not misuse the service. All conversations may be used to improve the service, but your personal data is protected. Do not enter sensitive personal information. The developer is not responsible for any incorrect information provided by the AI. </p></div><div class="modal-buttons"><button class="delete-btn" id="deny-terms-btn">Deny</button><button class="save-btn" id="accept-terms-btn">Accept</button></div></div><div class="modal-overlay" id="edit-modal-overlay"></div><div class="edit-modal" id="edit-modal"><h2>Edit Message</h2><div class="form-group"><textarea id="edit-textarea"></textarea></div><div class="modal-buttons"><button id="cancel-edit-btn">Cancel</button><button class="save-btn" id="save-edit-btn">Save & Regenerate</button></div></div><div class="toast" id="toast"></div><div class="toast confirm-toast" id="confirm-toast"><p id="confirm-toast-message"></p><div class="toast-buttons"><button class="confirm-no" id="confirm-no-btn">No</button><button class="confirm-yes" id="confirm-yes-btn">Yes</button></div></div>
+<!DOCTYPE html><html lang="si" data-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RansGPT - AI Assistant by Ransara Devnath</title><meta name="description" content="RansGPT is a personalized AI chat assistant, trained and developed by Ransara Devnath, offering intelligent conversations and answers."><meta name="keywords" content="RansGPT, AI Chat, Ransara Devnath, Artificial Intelligence, Sri Lanka, Sinhala AI, Deepseek API, Chatbot"><meta name="author" content="Ransara Devnath"><meta property="og:title" content="RansGPT - AI Assistant"><meta property="og:description" content="Intelligent conversations with a personalized AI."><meta property="og:image" content="https://files.catbox.moe/fj08ro.jpg"><meta property="og:url" content="https://ransgpt-v3-ai.netlify.app/"><meta property="og:type" content="website"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script><style>:root{--background-color:#131314;--surface-color:#1E1F20;--text-color:#E3E3E3;--secondary-text-color:#9AA0A6;--accent-color:#8AB4F8;--font-family:'Roboto',sans-serif;--hover-color:#282A2C;--sidebar-width:280px;--danger-color:#e57373}[data-theme=light]{--background-color:#fff;--surface-color:#F0F4F9;--text-color:#1F1F1F;--secondary-text-color:#5F6368;--hover-color:#E8F0FE;--danger-color:#d32f2f}*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--font-family);background-color:var(--background-color);color:var(--text-color);display:flex;height:100vh;overflow:hidden}.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100%;background-color:var(--surface-color);z-index:1001;transform:translateX(-100%);transition:transform .3s ease;padding:16px;display:flex;flex-direction:column;border-right:1px solid var(--hover-color)}.sidebar.open{transform:translateX(0)}.sidebar-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}.sidebar-header .close-btn{background:0 0;border:none;color:var(--text-color);font-size:20px;cursor:pointer}.sidebar-header .title{font-size:20px;font-weight:500}.sidebar-content{flex-grow:1;overflow-y:auto}.sidebar-section{margin-bottom:20px}.sidebar-section h3{font-size:14px;color:var(--secondary-text-color);margin-bottom:10px;padding:0 12px}.sidebar-list{list-style:none}.sidebar-list li{display:flex;align-items:center;width:100%;gap:16px;padding:10px 12px;border-radius:20px;cursor:pointer;transition:background-color .2s;font-size:14px}.sidebar-list li:hover{background-color:var(--hover-color)}.sidebar-list li.active{background-color:var(--accent-color);color:var(--background-color)}.sidebar-list li i{width:20px;text-align:center}.sidebar-credit{margin-top:auto;padding:20px 0 10px;text-align:center;font-size:12px;color:var(--secondary-text-color)}.sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}.sidebar-overlay.open{opacity:1;pointer-events:auto}.app-container{width:100%;display:flex;flex-direction:column;height:100vh}.top-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;flex-shrink:0;position:relative}.top-bar .menu-icon{font-size:20px;cursor:pointer;color:var(--text-color)}.profile-icon-container{position:relative}.profile-icon{background-color:var(--surface-color);width:32px;height:32px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:18px;cursor:pointer;border:1px solid var(--secondary-text-color);object-fit:cover}.profile-dropdown{position:absolute;top:45px;right:0;background-color:var(--surface-color);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:1002;width:200px;padding:8px;display:none}.profile-dropdown.show{display:block}.profile-dropdown ul{list-style:none}.profile-dropdown li{padding:10px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px}.profile-dropdown li:hover{background-color:var(--hover-color)}.profile-dropdown li.danger:hover{background-color:var(--danger-color);color:#fff}.top-bar .title{font-size:20px;font-weight:500}.main-content{flex-grow:1;overflow-y:auto;padding:0 16px;display:flex;flex-direction:column;align-items:center}.content-wrapper{width:100%;max-width:800px;padding-top:24px;padding-bottom:20px}.greeting{animation:fadeInUp .8s ease-out forwards}@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.greeting h1{font-size:clamp(2rem,10vw,3.5rem);font-weight:400;background:-webkit-linear-gradient(45deg,#4285f4,#9b72cb,#d96570,#f2a600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}.greeting p{font-size:1.25rem;color:var(--secondary-text-color)}.suggestion-cards,.chat-box{width:100%;max-width:800px}.suggestion-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:40px}.card{background-color:var(--surface-color);border-radius:12px;padding:16px;cursor:pointer;transition:background-color .2s;height:100px;position:relative;overflow:hidden}.card:hover{background-color:var(--hover-color)}.card p{font-size:14px}.card .card-icon{position:absolute;bottom:12px;right:12px;font-size:24px;color:var(--secondary-text-color);background-color:var(--background-color);border-radius:50%;width:40px;height:40px;display:flex;justify-content:center;align-items:center}.chat-box{padding:20px 0;display:none;flex-direction:column}.message{margin-bottom:24px;display:flex;align-items:flex-start;gap:16px;max-width:90%}.message.bot{align-self:flex-start}.message.user{align-self:flex-end;flex-direction:row-reverse}.message .avatar{width:32px;height:32px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:700;flex-shrink:0;object-fit:cover}.message.user .avatar{background-color:var(--surface-color);font-size:16px}.message.bot .avatar{background:0 0}.message-content{display:flex;flex-direction:column;width:100%;position:relative}.message.user .message-content{align-items:flex-end}.message p{padding-top:4px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}.message p a.chat-link{color:var(--accent-color);text-decoration:underline}.message p b,.message p strong{font-weight:700}.message p em,.message p i{font-style:italic}.message p code{background-color:var(--surface-color);border-radius:4px;padding:2px 6px;font-family:monospace;font-size:.9em}.message p pre{background-color:#0d0d0d;color:#f8f8f2;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;position:relative}.message p pre .copy-code-btn{position:absolute;top:8px;right:8px;background-color:var(--surface-color);color:var(--text-color);border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;opacity:0;transition:opacity .2s}.message p pre:hover .copy-code-btn{opacity:1}.message p pre code{background:0 0;padding:0}.message p ol,.message p ul{margin-left:20px;margin-top:10px;margin-bottom:10px}.message p li{margin-bottom:5px}.thinking-animation{display:flex;align-items:center;gap:10px;padding:10px 0}.typing-dot{width:8px;height:8px;background-color:var(--secondary-text-color);border-radius:50%;animation:bounce 1.4s infinite ease-in-out both}.typing-dot:nth-child(1){animation-delay:-.32s}.typing-dot:nth-child(2){animation-delay:-.16s}@keyframes bounce{0%,100%,80%{transform:scale(0)}40%{transform:scale(1)}}.message-actions{display:flex;gap:8px;align-items:center;margin-top:8px;opacity:0;transition:opacity .2s linear;height:24px}.message:hover .message-actions{opacity:1}.action-icon{cursor:pointer;color:var(--secondary-text-color);padding:4px;font-size:16px}.options-menu-overlay,.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:100;display:none;opacity:0;transition:opacity .3s ease}.modal-overlay.show{display:block;opacity:1}.options-menu{position:fixed;bottom:0;left:0;width:100%;background-color:#282a2c;border-top-left-radius:16px;border-top-right-radius:16px;z-index:101;padding:16px 32px;transform:translateY(100%);transition:transform .3s ease-out}.options-menu.show{transform:translateY(0)}.options-menu-header{display:flex;justify-content:center;margin-bottom:16px}.options-menu-handle{width:40px;height:4px;background-color:var(--secondary-text-color);border-radius:2px}.options-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center;margin-bottom:24px}.option-item{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}.option-item .icon{width:48px;height:48px;background-color:var(--surface-color);border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:20px}.option-item span{font-size:12px}.options-list{list-style:none}.options-list li{padding:14px 0;border-top:1px solid var(--surface-color);display:flex;align-items:center;gap:16px;cursor:pointer}.options-list li i{width:20px;text-align:center}.input-area{padding:8px 16px 16px;background-color:var(--background-color);flex-shrink:0;width:100%;position:relative}.input-wrapper{max-width:800px;margin:0 auto;display:flex;align-items:center;background-color:var(--surface-color);border-radius:28px;padding:4px 12px}.input-wrapper #user-input{flex-grow:1;border:none;background:0 0;color:var(--text-color);padding:12px;font-size:16px;outline:0;resize:none;max-height:100px;overflow-y:auto}.icon-btn{background:0 0;border:none;color:var(--secondary-text-color);font-size:20px;cursor:pointer;padding:8px;border-radius:50%;transition:background-color .2s;display:flex;justify-content:center;align-items:center}.icon-btn:hover{background-color:var(--hover-color)}#send-btn.is-stopping{background-color:var(--hover-color);border:1px solid var(--secondary-text-color)}.disclaimer{font-size:12px;color:var(--secondary-text-color);text-align:center;padding-top:10px;max-width:800px;margin:0 auto}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background-color:var(--surface-color);color:var(--text-color);padding:12px 24px;border-radius:8px;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.3);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s,bottom .3s}.toast.show{bottom:30px;opacity:1;visibility:visible}.confirm-toast{width:90%;max-width:320px;text-align:center}.confirm-toast .toast-buttons{display:flex;justify-content:center;gap:12px;margin-top:16px}.confirm-toast button{border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:700}.confirm-toast .confirm-yes{background-color:var(--danger-color);color:#fff}.confirm-toast .confirm-no{background-color:var(--hover-color);color:var(--text-color)}.toggle-switch{display:flex;align-items:center;justify-content:space-between;width:100%}.switch{position:relative;display:inline-block;width:34px;height:20px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}.slider:before{position:absolute;content:"";height:12px;width:12px;left:4px;bottom:4px;background-color:#fff;transition:.4s;border-radius:50%}.switch input:checked+.slider{background-color:var(--accent-color)}.switch input:checked+.slider:before{transform:translateX(14px)}.account-modal,.terms-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:var(--surface-color);border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.5);z-index:1001;width:90%;max-width:500px;padding:24px;display:none}.account-modal h2,.terms-modal h2{margin-bottom:20px;text-align:center}.form-group{margin-bottom:16px}.form-group label{display:block;margin-bottom:8px;font-size:14px;color:var(--secondary-text-color)}.form-group input{width:100%;padding:10px;border-radius:6px;border:1px solid var(--secondary-text-color);background-color:var(--background-color);color:var(--text-color);font-size:16px}.avatar-selection{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}.avatar-choice{width:50px;height:50px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .2s;object-fit:cover}.avatar-choice.selected{border-color:var(--accent-color)}.modal-buttons{display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:24px}.delete-btn{background:0 0;border:none;color:var(--danger-color);cursor:pointer;font-size:14px;margin-right:auto}.save-btn{background-color:var(--accent-color);border:none;color:var(--background-color);padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:700}.terms-content{max-height:300px;overflow-y:auto;padding-right:10px;margin-bottom:20px;font-size:14px;line-height:1.6;color:var(--secondary-text-color)}.terms-content h3{color:var(--text-color);margin-top:16px;margin-bottom:8px}[data-netlify-identity-widget]{--modal-background:var(--background-color);--text-color:var(--text-color);--primary-color:var(--accent-color);--primary-button-background:var(--accent-color);--primary-button-text-color:#131314;--border-color:var(--secondary-text-color);--input-background:var(--surface-color);--input-text-color:var(--text-color);--error-color:var(--danger-color)}.modal-container{background-color:var(--background-color)!important;color:var(--text-color)!important;border-radius:12px}.modal-header,.form-header{color:var(--text-color)!important;text-align:center}.modal-header h1:before{content:"Welcome to RansGPT";display:block;font-size:16px;font-weight:500;color:var(--text-color);margin-bottom:16px}.form-control{background-color:var(--surface-color)!important;color:var(--text-color)!important;border:1px solid var(--secondary-text-color)!important;border-radius:8px!important;transition:border-color .3s ease,box-shadow .3s ease}.form-control:focus{border-color:var(--accent-color)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-color) 25%,transparent)!important}.btn,.btn:focus{background-color:var(--accent-color)!important;color:#131314!important;font-weight:700!important;border-radius:20px!important;transition:opacity .3s ease}.btn:hover{opacity:.85}.btn-github,.btn-google{background:var(--surface-color)!important;color:var(--text-color)!important;border:1px solid var(--secondary-text-color)!important}.btn-github:before,.btn-google:before{filter:invert(1)}.forgot-password,.tab,.user-greeting a,.email-label span{color:var(--secondary-text-color)!important}.tab.active{color:var(--text-color)!important;border-bottom-color:var(--accent-color)!important}.form-error{color:var(--danger-color)!important;font-weight:700}.sidebar-list .chat-title-wrapper{display:flex;align-items:center;width:100%;gap:16px}.sidebar-list .chat-title-wrapper .chat-title-text{flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar-list li .delete-chat-btn{margin-left:auto;visibility:hidden;opacity:0;transition:opacity .2s ease;font-size:14px;padding:4px}.sidebar-list li:hover .delete-chat-btn{visibility:visible;opacity:.7}.sidebar-list li .delete-chat-btn:hover{opacity:1;color:var(--danger-color)}
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><button class="close-btn" id="close-sidebar-btn"><i class="fas fa-times"></i></button><div class="title">RansGPT</div></div>
+        <div class="sidebar-content">
+            <ul class="sidebar-list"><li id="new-chat-btn"><i class="fas fa-edit"></i> New Chat</li></ul>
+            <div class="sidebar-section"><h3>Recent</h3><ul class="sidebar-list" id="recent-chats-list"></ul></div>
+            <div class="sidebar-section"><h3>Settings</h3><ul class="sidebar-list"><li><div class="toggle-switch"><span><i class="fas fa-moon"></i> Dark Theme</span><label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label></div></li></ul></div>
+        </div>
+        <div class="sidebar-credit">Made by Ransara Devnath</div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="app-container">
+        <div class="top-bar"><div class="menu-icon" id="menu-icon"><i class="fas fa-bars"></i></div><div class="title">RansGPT</div><div class="profile-icon-container" id="profile-icon-container"><div class="profile-icon"><i class="fas fa-user"></i></div></div></div>
+        <main class="main-content" id="main-content">
+            <div class="content-wrapper">
+                <div id="welcome-container">
+                    <div class="greeting"><h1>Hello, Guest</h1><p>How can I help you today?</p></div>
+                    <div class="suggestion-cards">
+                        <div class="card" data-prompt="Write a short story about a friendly robot"><p>Write a short story about a friendly robot</p><div class="card-icon"><i class="fas fa-pen"></i></div></div>
+                        <div class="card" data-prompt="Explain quantum computing in simple terms"><p>Explain quantum computing in simple terms</p><div class="card-icon"><i class="fas fa-lightbulb"></i></div></div>
+                        <div class="card" data-prompt="Suggest some fun activities for a weekend trip"><p>Suggest some fun activities for a weekend trip</p><div class="card-icon"><i class="fas fa-compass"></i></div></div>
+                        <div class="card" data-prompt="Create a workout plan for a beginner"><p>Create a workout plan for a beginner</p><div class="card-icon"><i class="fas fa-dumbbell"></i></div></div>
+                    </div>
+                </div>
+                <div class="chat-box" id="chat-box"></div>
+            </div>
+        </main>
+        <div class="input-area" id="input-area">
+            <div class="input-wrapper"><button class="icon-btn" id="plus-btn"><i class="fas fa-plus"></i></button><input type="text" id="user-input" placeholder="Ask RansGPT"><button class="icon-btn" id="mic-btn"><i class="fas fa-microphone"></i></button><button class="icon-btn" id="send-btn" style="display:none"><i class="fas fa-arrow-up"></i></button></div>
+            <p class="disclaimer">RansGPT can make mistakes. Consider checking important information.</p>
+        </div>
+    </div>
+    <div class="options-menu-overlay" id="options-menu-overlay"></div>
+    <div class="options-menu" id="options-menu"><div class="options-menu-header"><div class="options-menu-handle"></div></div><div class="options-grid"><div class="option-item" id="redo-btn"><div class="icon"><i class="fas fa-redo"></i></div><span>Redo</span></div><div class="option-item" id="good-btn"><div class="icon"><i class="fas fa-thumbs-up"></i></div><span>Good</span></div><div class="option-item" id="bad-btn"><div class="icon"><i class="fas fa-thumbs-down"></i></div><span>Bad</span></div><div class="option-item" id="read-btn"><div class="icon"><i class="fas fa-volume-up"></i></div><span>Read</span></div></div><ul class="options-list"><li id="copy-btn"><i class="fas fa-copy"></i> Copy</li><li id="share-btn"><i class="fas fa-share-alt"></i> Share conversation</li><li id="export-btn"><i class="fas fa-file-export"></i> Export to...</li></ul></div>
+    <div class="modal-overlay" id="account-modal-overlay"></div>
+    <div class="account-modal" id="account-modal"><h2>Account Settings</h2><div class="form-group"><label for="user-name-input">Your Name</label><input type="text" id="user-name-input" placeholder="Enter your name"></div><div class="form-group"><label>Choose Your Avatar</label><div class="avatar-selection" id="avatar-selection"></div></div><div class="modal-buttons"><button class="delete-btn" id="delete-account-btn">Delete Account & Data</button><button class="save-btn" id="save-account-btn">Save</button></div></div>
+    <div class="modal-overlay" id="terms-modal-overlay"></div>
+    <div class="terms-modal" id="terms-modal"><h2>Welcome to RansGPT!</h2><div class="terms-content"><h3>About RansGPT</h3><p> This is a personalized AI assistant.<br><br> - <b>Made by:</b> Ransara Devnath<br> - <b>Trained by:</b> Ransara Devnath<br> - <b>Security Protection by:</b> Netlify<br><br> Special thanks to the Gemini 2.5 Pro module for the invaluable help in training and developing RansGPT. </p><h3>Terms and Conditions</h3><p> By using RansGPT, you agree to not misuse the service. All conversations may be used to improve the service, but your personal data is protected. Do not enter sensitive personal information. The developer is not responsible for any incorrect information provided by the AI. </p></div><div class="modal-buttons"><button class="delete-btn" id="deny-terms-btn">Deny</button><button class="save-btn" id="accept-terms-btn">Accept</button></div></div>
+    <div class="toast" id="toast"></div><div class="toast confirm-toast" id="confirm-toast"><p id="confirm-toast-message"></p><div class="toast-buttons"><button class="confirm-no" id="confirm-no-btn">No</button><button class="confirm-yes" id="confirm-yes-btn">Yes</button></div></div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
-    const getEl = (id) => document.getElementById(id);
-    const mainContent = getEl('main-content');
-    const sidebar = getEl('sidebar');
-    const sidebarOverlay = getEl('sidebar-overlay');
-    const menuIcon = getEl('menu-icon');
-    const closeSidebarBtn = getEl('close-sidebar-btn');
-    const welcomeContainer = getEl('welcome-container');
-    const chatBox = getEl('chat-box');
-    const userInput = getEl('user-input');
-    const sendBtn = getEl('send-btn');
-    const micBtn = getEl('mic-btn');
-    const suggestionCards = document.querySelectorAll('.card');
-    const fileUploadInput = getEl('file-upload');
-    const filePreviewContainer = getEl('file-preview-container');
-    const themeToggle = getEl('theme-toggle');
-    const recentChatsList = getEl('recent-chats-list');
-    const newChatBtn = getEl('new-chat-btn');
-    const profileIconContainer = getEl('profile-icon-container');
-    const toast = getEl('toast');
-    const confirmToast = getEl('confirm-toast');
-    const confirmToastMessage = getEl('confirm-toast-message');
-    const confirmYesBtn = getEl('confirm-yes-btn');
-    const confirmNoBtn = getEl('confirm-no-btn');
-    const accountModal = getEl('account-modal');
-    const accountModalOverlay = getEl('account-modal-overlay');
-    const userNameInput = getEl('user-name-input');
-    const avatarSelectionContainer = getEl('avatar-selection');
-    const saveAccountBtn = getEl('save-account-btn');
-    const deleteAccountBtn = getEl('delete-account-btn');
-    const termsModal = getEl('terms-modal');
-    const termsModalOverlay = getEl('terms-modal-overlay');
-    const acceptTermsBtn = getEl('accept-terms-btn');
-    const denyTermsBtn = getEl('deny-terms-btn');
-    const optionsMenu = getEl('options-menu');
-    const optionsMenuOverlay = getEl('options-menu-overlay');
-    const greetingH1 = document.querySelector('.greeting h1');
-    const editModal = getEl('edit-modal');
-    const editModalOverlay = getEl('edit-modal-overlay');
-    const editTextArea = getEl('edit-textarea');
-    const saveEditBtn = getEl('save-edit-btn');
-    const cancelEditBtn = getEl('cancel-edit-btn');
+    <script>
+        // --- DOM Elements ---
+        const mainContent = document.getElementById('main-content');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const welcomeContainer = document.getElementById('welcome-container');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const suggestionCards = document.querySelectorAll('.card');
+        const plusBtn = document.getElementById('plus-btn');
+        const optionsMenuOverlay = document.getElementById('options-menu-overlay');
+        const optionsMenu = document.getElementById('options-menu');
+        const toast = document.getElementById('toast');
+        const confirmToast = document.getElementById('confirm-toast');
+        const confirmToastMessage = document.getElementById('confirm-toast-message');
+        const confirmYesBtn = document.getElementById('confirm-yes-btn');
+        const confirmNoBtn = document.getElementById('confirm-no-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const recentChatsList = document.getElementById('recent-chats-list');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const profileIconContainer = document.getElementById('profile-icon-container');
+        const accountModalOverlay = document.getElementById('account-modal-overlay');
+        const accountModal = document.getElementById('account-modal');
+        const userNameInput = document.getElementById('user-name-input');
+        const avatarSelectionContainer = document.getElementById('avatar-selection');
+        const saveAccountBtn = document.getElementById('save-account-btn');
+        const deleteAccountBtn = document.getElementById('delete-account-btn');
+        const greetingH1 = document.querySelector('.greeting h1');
+        const termsModal = document.getElementById('terms-modal');
+        const termsModalOverlay = document.getElementById('terms-modal-overlay');
+        const acceptTermsBtn = document.getElementById('accept-terms-btn');
+        const denyTermsBtn = document.getElementById('deny-terms-btn');
 
-    // --- State Management ---
-    let currentChat = [], allChats = {}, currentChatId = null, lastUserMessage = {}, currentMessageText = "", apiRequestController, attachedFile = null, speechRecognition, typingInterval, messageIdToEdit = null;
-    const avatarOptions = ["icon", "[https://files.catbox.moe/6j6s3e.png](https://files.catbox.moe/6j6s3e.png)", "[https://files.catbox.moe/x9w3tq.png](https://files.catbox.moe/x9w3tq.png)", "[https://files.catbox.moe/q3f3a5.png](https://files.catbox.moe/q3f3a5.png)"];
-    let tempSelectedAvatar = "icon";
+        // --- State Management ---
+        let currentChat = [], allChats = {}, currentChatId = null, lastUserMessage = "", currentMessageText = "", apiRequestController;
+        const avatarOptions = ["icon", "https://files.catbox.moe/6j6s3e.png", "https://files.catbox.moe/x9w3tq.png", "https://files.catbox.moe/q3f3a5.png"];
+        let tempSelectedAvatar = "icon";
 
-    // --- Core Functions ---
-    function showToast(message) { if (!toast) return; toast.textContent = message; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
-    function showConfirmationToast(message, onConfirm) { if (!confirmToast || !confirmToastMessage) return; confirmToastMessage.textContent = message; confirmToast.classList.add('show'); const handleYes = () => { onConfirm(); hideConfirmationToast(); confirmYesBtn.removeEventListener('click', handleYes); confirmNoBtn.removeEventListener('click', handleNo); }; const handleNo = () => { hideConfirmationToast(); confirmYesBtn.removeEventListener('click', handleYes); confirmNoBtn.removeEventListener('click', handleNo); }; confirmYesBtn.addEventListener('click', handleYes); confirmNoBtn.addEventListener('click', handleNo); }
-    function hideConfirmationToast() { confirmToast?.classList.remove('show'); }
-
-    function smartScroll() {
-        if (!mainContent) return;
-        const isScrolledToBottom = mainContent.scrollHeight - mainContent.clientHeight <= mainContent.scrollTop + 150;
-        if (isScrolledToBottom) {
-            mainContent.scrollTop = mainContent.scrollHeight;
+        // --- Core Functions ---
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
-    }
-    
-    function typeMessage(element, fullHtml, onComplete) {
-        if (typingInterval) cancelAnimationFrame(typingInterval);
-        
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = fullHtml;
-        const allNodes = Array.from(tempDiv.childNodes);
-        element.innerHTML = '';
-        
-        let nodeIndex = 0;
-        let textIndex = 0;
-        let animationFrame;
 
-        function type() {
-            if (nodeIndex < allNodes.length) {
-                const currentNode = allNodes[nodeIndex];
-                if (currentNode.nodeType === Node.TEXT_NODE) {
-                    if (textIndex < currentNode.textContent.length) {
-                        element.innerHTML += currentNode.textContent[textIndex];
-                        textIndex++;
-                    } else {
-                        textIndex = 0;
-                        nodeIndex++;
-                    }
+        function showConfirmationToast(message, onConfirm) {
+            confirmToastMessage.textContent = message;
+            confirmToast.classList.add('show');
+            const handleYes = () => { onConfirm(); hideConfirmationToast(); confirmYesBtn.removeEventListener('click', handleYes); confirmNoBtn.removeEventListener('click', handleNo); };
+            const handleNo = () => { hideConfirmationToast(); confirmYesBtn.removeEventListener('click', handleYes); confirmNoBtn.removeEventListener('click', handleNo); };
+            confirmYesBtn.addEventListener('click', handleYes);
+            confirmNoBtn.addEventListener('click', handleNo);
+        }
+
+        function hideConfirmationToast() { confirmToast.classList.remove('show'); }
+
+        function addMessage(message, sender, isThinking = false) {
+            showChatView();
+            const user = netlifyIdentity.currentUser();
+            const messageId = 'msg-' + Date.now();
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.id = messageId;
+            let avatar;
+            if (sender === 'user') {
+                const userAvatarSrc = user?.user_metadata?.avatar || 'icon';
+                if (userAvatarSrc === 'icon') {
+                    avatar = document.createElement('div');
+                    avatar.classList.add('avatar');
+                    avatar.innerHTML = `<i class="fas fa-user"></i>`;
                 } else {
-                    element.innerHTML += currentNode.outerHTML;
-                    nodeIndex++;
+                    avatar = document.createElement('img');
+                    avatar.classList.add('avatar');
+                    avatar.src = userAvatarSrc;
                 }
-                smartScroll();
-                animationFrame = requestAnimationFrame(type);
+            } else { 
+                avatar = document.createElement('img');
+                avatar.classList.add('avatar');
+                avatar.src = 'https://files.catbox.moe/fj08ro.jpg';
+                avatar.alt = 'RansGPT Logo';
+            }
+            messageElement.appendChild(avatar);
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
+            if (isThinking) {
+                messageContent.innerHTML = `<div class="thinking-animation"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
             } else {
-                if (onComplete) onComplete();
-            }
-        }
-        animationFrame = requestAnimationFrame(type);
-    }
-
-    function addMessage(messageData) {
-        if (!chatBox) return;
-        const { id, text, sender, isThinking = false, file } = messageData;
-        showChatView();
-        const user = netlifyIdentity.currentUser();
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', sender);
-        messageElement.dataset.id = id;
-        
-        const name = user?.user_metadata?.full_name || user?.email || 'G';
-        const firstLetter = name.charAt(0).toLowerCase();
-        const userAvatarSrc = user?.user_metadata?.avatar || 'icon';
-        const avatarHTML = sender === 'user'
-            ? (userAvatarSrc === 'icon' ? `<div class="avatar avatar-initial letter-${firstLetter}">${firstLetter.toUpperCase()}</div>` : `<img class="avatar" src="${userAvatarSrc}" alt="User Avatar">`)
-            : `<img class="avatar" src="https://files.catbox.moe/fj08ro.jpg" alt="RansGPT Logo">`;
-        
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
-
-        if (isThinking) {
-             messageElement.innerHTML = avatarHTML;
-             messageContent.innerHTML = `<div class="thinking-animation"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
-             messageElement.appendChild(messageContent);
-        } else {
-            messageElement.innerHTML = avatarHTML;
-            if (file && sender === 'user') {
-                const fileElement = document.createElement('div');
-                fileElement.classList.add('sent-file');
-                fileElement.innerHTML = file.type.startsWith('image/')
-                    ? `<img src="${file.url}" alt="${file.name}">`
-                    : `<div class="file-preview-wrapper"><div class="file-preview"><i class="fas fa-file-alt"></i></div><div class="file-info"><span class="file-name">${file.name}</span></div></div>`;
-                messageContent.appendChild(fileElement);
-            }
-            if (text) {
                 const p = document.createElement('p');
-                const actionsContainer = document.createElement('div');
-                actionsContainer.classList.add('message-actions');
-
                 if (sender === 'bot') {
-                    const dirtyHtml = marked.parse(text);
-                    const sanitizedHtml = DOMPurify.sanitize(dirtyHtml);
-                    
-                    typeMessage(p, sanitizedHtml, () => {
-                        p.querySelectorAll('pre code').forEach(block => {
-                            if (block.hasAttribute('data-highlighted')) return;
-                            const language = (block.className.match(/language-(\w+)/) || [])[1] || 'code';
-                            const codeBlockWrapper = document.createElement('div');
-                            codeBlockWrapper.className = 'code-block';
-                            const header = document.createElement('div');
-                            header.className = 'code-block-header';
-                            const langName = document.createElement('span');
-                            langName.textContent = language;
-                            const copyBtn = document.createElement('button');
-                            copyBtn.className = 'copy-code-btn';
-                            copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
-                            copyBtn.onclick = () => { navigator.clipboard.writeText(block.innerText); showToast('Code copied!'); };
-                            header.appendChild(langName);
-                            header.appendChild(copyBtn);
-                            codeBlockWrapper.appendChild(header);
-                            const preElement = block.parentElement;
-                            if (preElement) {
-                                preElement.parentNode.replaceChild(codeBlockWrapper, preElement);
-                                codeBlockWrapper.appendChild(preElement);
-                                hljs.highlightElement(block);
-                                block.setAttribute('data-highlighted', 'true');
-                            }
+                    const linkedText = linkifyText(message);
+                    const dirtyHtml = marked.parse(linkedText);
+                    p.innerHTML = DOMPurify.sanitize(dirtyHtml, { ADD_ATTR: ['target'] });
+                    p.querySelectorAll('pre').forEach(pre => {
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-code-btn';
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        pre.appendChild(copyBtn);
+                        copyBtn.addEventListener('click', () => {
+                            const codeToCopy = pre.querySelector('code').innerText;
+                            navigator.clipboard.writeText(codeToCopy).then(() => {
+                                showToast('Code copied to clipboard!');
+                            }, () => { showToast('Failed to copy code.'); });
                         });
-                        actionsContainer.innerHTML = `<i class="fas fa-sync-alt action-icon regenerate-btn" title="Regenerate"></i><i class="fas fa-ellipsis-h action-icon options-btn" title="More"></i>`;
-                        actionsContainer.querySelector('.regenerate-btn')?.addEventListener('click', () => handleRegenerate(id));
-                        actionsContainer.querySelector('.options-btn')?.addEventListener('click', () => showOptionsMenu(text, id));
-                        actionsContainer.classList.add('visible');
                     });
-
-                } else { // User message
-                    p.textContent = text;
-                    actionsContainer.innerHTML = `<i class="fas fa-pen action-icon edit-btn" title="Edit"></i>`;
-                    actionsContainer.querySelector('.edit-btn')?.addEventListener('click', () => openEditModal(id));
-                    setTimeout(() => {
-                        if (p.scrollHeight > 150) {
-                            p.classList.add('collapsible');
-                            p.addEventListener('click', () => p.classList.toggle('expanded'));
-                        }
-                    }, 0);
+                } else {
+                    p.textContent = message;
                 }
                 messageContent.appendChild(p);
-                messageContent.appendChild(actionsContainer);
-            }
-             messageElement.appendChild(messageContent);
-        }
-        
-        chatBox.appendChild(messageElement);
-        smartScroll();
-    }
-    
-    function openEditModal(messageId) {
-        const messageToEdit = currentChat.find(msg => msg.id === messageId);
-        if (messageToEdit && editModal) {
-            messageIdToEdit = messageId;
-            editTextArea.value = messageToEdit.text;
-            editModal.style.display = 'block';
-            editModalOverlay.classList.add('show');
-        }
-    }
-
-    function closeEditModal() {
-        if(editModal) editModal.style.display = 'none';
-        if(editModalOverlay) editModalOverlay.classList.remove('show');
-        messageIdToEdit = null;
-    }
-
-    function handleSaveEdit() {
-        if (!messageIdToEdit) return;
-        const newText = editTextArea.value.trim();
-        const userMsgIndex = currentChat.findIndex(msg => msg.id === messageIdToEdit);
-        if (userMsgIndex === -1 || newText === '') return;
-
-        const originalMessage = currentChat[userMsgIndex];
-        
-        currentChat.splice(userMsgIndex, 2); 
-
-        const userMsgElement = document.querySelector(`[data-id='${originalMessage.id}']`);
-        const botMsgElement = userMsgElement?.nextElementSibling;
-        userMsgElement?.remove();
-        botMsgElement?.remove();
-
-        closeEditModal();
-        sendMessage(newText, originalMessage.file);
-    }
-
-    function handleRegenerate(botMessageId) {
-        const botMsgIndex = currentChat.findIndex(m => m.id === botMessageId);
-        if (botMsgIndex < 1) return;
-        const userMsgIndex = botMsgIndex - 1;
-        const userMessage = currentChat[userMsgIndex];
-        const userMsgElement = document.querySelector(`[data-id='${userMessage.id}']`);
-        if (userMsgElement) {
-            let elementToRemove = userMsgElement.nextElementSibling;
-            while (elementToRemove && !elementToRemove.classList.contains('message-user')) {
-                let nextElement = elementToRemove.nextElementSibling;
-                elementToRemove.remove();
-                elementToRemove = nextElement;
-            }
-            userMsgElement.remove();
-        }
-        currentChat.splice(userMsgIndex);
-        showToast("Switching model and regenerating...");
-        sendMessage(userMessage.text, userMessage.file);
-    }
-
-    async function sendMessage(queryText, fileInfo) {
-        if (sendBtn?.classList.contains('is-stopping')) {
-            if (apiRequestController) { apiRequestController.abort(); }
-            return;
-        }
-
-        const query = queryText !== undefined ? queryText : userInput.value.trim();
-        const file = fileInfo !== undefined ? fileInfo : attachedFile;
-        const finalText = (query === '' && file) ? `Tell me about this ${file.type.startsWith('image/') ? 'image' : 'file'}.` : query;
-        if (finalText === '' && !file) return;
-
-        const userMessageId = 'user-' + Date.now();
-        const userMessage = { id: userMessageId, sender: 'user', text: finalText, file: file };
-        lastUserMessage = { ...userMessage };
-        addMessage(userMessage);
-        currentChat.push(userMessage);
-        userInput.value = '';
-        removeFilePreview();
-        toggleSendButton(true);
-
-        const thinkingMessageId = 'bot-thinking-' + Date.now();
-        addMessage({ id: thinkingMessageId, sender: 'bot', isThinking: true });
-        apiRequestController = new AbortController();
-        try {
-            const bodyPayload = { history: currentChat };
-            const response = await fetch('/.netlify/functions/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload), signal: apiRequestController.signal });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Network response was not ok');
-            }
-            const data = await response.json();
-            document.querySelector(`[data-id='${thinkingMessageId}']`)?.remove();
-            const botMessage = { id: 'bot-' + Date.now(), sender: 'bot', text: data.reply };
-            addMessage(botMessage);
-            currentChat.push(botMessage);
-            saveCurrentChat();
-        } catch (error) {
-            document.querySelector(`[data-id='${thinkingMessageId}']`)?.remove();
-            const errorMessage = error.name === 'AbortError' ? "Response stopped." : `Sorry, an error occurred: ${error.message}`;
-            addMessage({ id: 'bot-error-' + Date.now(), sender: 'bot', text: errorMessage });
-            console.error('Error:', error);
-            if (error.name === 'AbortError') {
-                userInput.value = lastUserMessage.text || '';
-                if (lastUserMessage.file) {
-                    attachedFile = lastUserMessage.file;
-                    showFilePreview(attachedFile);
-                    toggleSendButton(false);
+                if (sender === 'bot') {
+                    const actionsContainer = document.createElement('div');
+                    actionsContainer.classList.add('message-actions');
+                    actionsContainer.innerHTML = `<i class="fas fa-sync-alt action-icon regenerate-btn" title="Regenerate"></i><i class="fas fa-ellipsis-h action-icon options-btn" title="More"></i>`;
+                    messageContent.appendChild(actionsContainer);
+                    actionsContainer.querySelector('.regenerate-btn').addEventListener('click', () => {
+                        if(currentChat.length >= 1) { // Only need to pop last user message to resend
+                           lastUserMessage = currentChat[currentChat.length - 1].text;
+                           if(currentChat.length >=2) { currentChat.pop(); currentChat.pop(); }
+                           messageElement.parentElement.removeChild(messageElement);
+                           sendMessage(lastUserMessage);
+                        }
+                    });
+                    actionsContainer.querySelector('.options-btn').addEventListener('click', () => showOptionsMenu(message));
                 }
             }
-        } finally {
-            apiRequestController = null;
-            toggleSendButton(false);
+            messageElement.appendChild(messageContent);
+            chatBox.appendChild(messageElement);
+            return messageId;
         }
-    }
 
-    function handleVoiceInput() {
-        if (!('webkitSpeechRecognition' in window)) { return showToast('Sorry, your browser does not support voice input.'); }
-        if (speechRecognition && speechRecognition.isListening) { return speechRecognition.stop(); }
-        const SpeechRecognition = window.webkitSpeechRecognition;
-        speechRecognition = new SpeechRecognition();
-        speechRecognition.continuous = false;
-        speechRecognition.lang = 'en-US';
-        speechRecognition.interimResults = false;
-        speechRecognition.onstart = () => { speechRecognition.isListening = true; micBtn.classList.add('is-listening'); };
-        speechRecognition.onend = () => { speechRecognition.isListening = false; micBtn.classList.remove('is-listening'); };
-        speechRecognition.onerror = (event) => { console.error("Speech error", event); if (event.error !== 'no-speech') showToast("Didn't catch that."); };
-        speechRecognition.onresult = (event) => { userInput.value = event.results[0][0].transcript; toggleSendButton(false); };
-        speechRecognition.start();
-    }
-    
-    function showFilePreview(file) {
-        if (!filePreviewContainer) return;
-        const { name, size, type, url } = file;
-        const fileSize = size > 1024 * 1024 ? `${(size / (1024 * 1024)).toFixed(2)} MB` : `${(size / 1024).toFixed(1)} KB`;
-        let previewHTML = type.startsWith('image/') ? `<img src="${url}" alt="Preview">` : `<i class="fas fa-file-alt"></i>`;
-        filePreviewContainer.innerHTML = `<div class="file-preview-wrapper"><div class="file-preview">${previewHTML}</div><div class="file-info"><span class="file-name" title="${name}">${name}</span><span class="file-size">${fileSize}</span></div></div><button id="remove-file-btn">&times;</button>`;
-        filePreviewContainer.style.display = 'block';
-        document.getElementById('remove-file-btn').addEventListener('click', removeFilePreview);
-        if (size > 6 * 1024 * 1024) { showToast("Warning: Large files can't be processed by the AI."); }
-    }
-    function removeFilePreview() { if (!filePreviewContainer) return; attachedFile = null; fileUploadInput.value = ''; filePreviewContainer.innerHTML = ''; filePreviewContainer.style.display = 'none'; toggleSendButton(false); }
-    function toggleSendButton(isSending = false) { if (!sendBtn || !micBtn) return; const hasContent = userInput.value.trim() !== '' || attachedFile; if (isSending) { micBtn.style.display = 'none'; sendBtn.style.display = 'flex'; sendBtn.classList.add('is-stopping'); sendBtn.innerHTML = `<i class="fas fa-stop"></i>`; } else { sendBtn.classList.remove('is-stopping'); sendBtn.innerHTML = `<i class="fas fa-arrow-up"></i>`; if (hasContent) { micBtn.style.display = 'none'; sendBtn.style.display = 'flex'; } else { micBtn.style.display = 'flex'; sendBtn.style.display = 'none'; } } }
-    
-    function updateUI(user){try {if(!profileIconContainer||!greetingH1)return;profileIconContainer.innerHTML = '';const name=user?.user_metadata?.full_name||user?.email||'G';const firstLetter=name.charAt(0).toLowerCase();const userAvatarSrc=user?user.user_metadata.avatar||'icon':'icon';let profileIcon;if(userAvatarSrc==='icon'){profileIcon=document.createElement('div');profileIcon.classList.add('profile-icon','avatar','avatar-initial',`letter-${firstLetter}`);profileIcon.textContent=firstLetter.toUpperCase();}else{profileIcon=document.createElement('img');profileIcon.classList.add('profile-icon');profileIcon.src=userAvatarSrc;}profileIcon.addEventListener('click',e=>{e.stopPropagation();toggleProfileDropdown(user);});profileIconContainer.appendChild(profileIcon);if(user){greetingH1.textContent=`Hello, ${user.user_metadata.full_name||user.user_metadata.name||user.email.split('@')[0]}`;loadUserSpecificData(user);}else{showWelcomeView();greetingH1.textContent=`Hello, Guest`;if(recentChatsList)recentChatsList.innerHTML='';}} catch (error) { console.error("Error in updateUI:", error); }}
-    function toggleProfileDropdown(user){if(!profileIconContainer)return;let dropdown=document.getElementById('profile-dropdown');if(!dropdown){dropdown=document.createElement('div');dropdown.id='profile-dropdown';dropdown.classList.add('profile-dropdown');profileIconContainer.appendChild(dropdown);}const ul=document.createElement('ul');if(user){ul.innerHTML=`<li id="settings-btn"><i class="fas fa-cog"></i> Settings</li><li id="logout-btn" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</li>`;}else{ul.innerHTML=`<li id="login-btn"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</li>`;}dropdown.innerHTML='';dropdown.appendChild(ul);if(user){dropdown.querySelector('#settings-btn')?.addEventListener('click',openAccountModal);dropdown.querySelector('#logout-btn')?.addEventListener('click',()=>{netlifyIdentity.logout();dropdown.classList.remove('show');});}else{dropdown.querySelector('#login-btn')?.addEventListener('click',()=>{netlifyIdentity.open();dropdown.classList.remove('show');});}dropdown.classList.toggle('show');}
-    function openAccountModal(){const user=netlifyIdentity.currentUser();if(!user||!accountModal)return;userNameInput.value=user.user_metadata.name||user.user_metadata.full_name||'';tempSelectedAvatar=user.user_metadata.avatar||'icon';avatarSelectionContainer.innerHTML='';avatarOptions.forEach(avatarSrc=>{let avatarChoice=avatarSrc==='icon'?document.createElement('div'):document.createElement('img');if(avatarSrc==='icon'){avatarChoice.classList.add('avatar-choice','profile-icon');avatarChoice.innerHTML=`<i class="fas fa-user"></i>`;}else{avatarChoice.classList.add('avatar-choice');avatarChoice.src=avatarSrc;}avatarChoice.dataset.src=avatarSrc;if(avatarSrc===tempSelectedAvatar){avatarChoice.classList.add('selected');}avatarChoice.addEventListener('click',()=>{document.querySelectorAll('.avatar-choice').forEach(el=>el.classList.remove('selected'));avatarChoice.classList.add('selected');tempSelectedAvatar=avatarSrc;});avatarSelectionContainer.appendChild(avatarChoice);});accountModal.style.display='block';accountModalOverlay.classList.add('show');}
-    function closeAccountModal(){if(!accountModal)return;accountModal.style.display='none';accountModalOverlay.classList.remove('show');}
-    function saveAccountSettings(){const user=netlifyIdentity.currentUser();const newName=userNameInput.value.trim();user.update({data:{name:newName,avatar:tempSelectedAvatar}}).then(updatedUser=>{updateUI(updatedUser);showToast("Settings saved!");closeAccountModal();}).catch(error=>{console.error("Error updating user data:",error);showToast("Failed to save settings.");});}
-    function deleteAccount(){showConfirmationToast("Delete account and all data?",()=>{const user=netlifyIdentity.currentUser();localStorage.removeItem(`ransgpt_chats_${user.id}`);user.delete().then(()=>showToast("Account deleted.")).catch(error=>{console.error("Error deleting account:",error);showToast("Failed to delete account.");});});}
-    function loadUserSpecificData(user){const savedChats=localStorage.getItem(`ransgpt_chats_${user.id}`);allChats=savedChats?JSON.parse(savedChats):{};updateRecentChatsList(user.id);const savedTheme=localStorage.getItem('ransgpt_theme')||'dark';setTheme(savedTheme);}
-    function showWelcomeView(){if(!welcomeContainer||!chatBox)return;welcomeContainer.style.display='block';chatBox.style.display='none';chatBox.innerHTML='';}
-    function showChatView(isNewChat=false){if(!welcomeContainer||!chatBox)return;if(isNewChat||welcomeContainer.style.display!=='none'){welcomeContainer.style.display='none';chatBox.style.display='flex';chatBox.style.flexDirection='column';}}
-    function setTheme(theme){document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('ransgpt_theme',theme);if(themeToggle)themeToggle.checked=theme==='dark';}
-    function toggleSidebar(){if(!sidebar||!sidebarOverlay)return;sidebar.classList.toggle('open');sidebarOverlay.classList.toggle('open');}
-    function saveCurrentChat(){const user=netlifyIdentity.currentUser();if(!user||currentChat.length===0)return;if(!currentChatId){currentChatId='chat-'+Date.now();}const firstUserMessage=currentChat.find(msg=>msg.sender==='user');const title=firstUserMessage?(firstUserMessage.text||"File Query").split(' ').slice(0,5).join(' '):"New Chat";allChats[currentChatId]={title:title,messages:currentChat};localStorage.setItem(`ransgpt_chats_${user.id}`,JSON.stringify(allChats));updateRecentChatsList(user.id);}
-    function updateRecentChatsList(userId){if(!recentChatsList)return;recentChatsList.innerHTML='';if(!userId)return;const chatIds=Object.keys(allChats).reverse();chatIds.forEach(chatId=>{const li=document.createElement('li');const chat=allChats[chatId];li.dataset.id=chatId;const titleWrapper=document.createElement('div');titleWrapper.classList.add('chat-title-wrapper');titleWrapper.innerHTML=`<i class="far fa-comment-alt"></i><span class="chat-title-text">${chat.title}</span>`;const deleteBtn=document.createElement('i');deleteBtn.classList.add('fas','fa-trash-alt','delete-chat-btn');li.appendChild(titleWrapper);li.appendChild(deleteBtn);if(chatId===currentChatId){li.classList.add('active');}titleWrapper.addEventListener('click',()=>loadChat(chatId));deleteBtn.addEventListener('click',e=>{e.stopPropagation();showConfirmationToast(`Delete "${chat.title}"?`,()=>{const user=netlifyIdentity.currentUser();delete allChats[chatId];localStorage.setItem(`ransgpt_chats_${user.id}`,JSON.stringify(allChats));if(chatId===currentChatId){startNewChat();}else{updateRecentChatsList(user.id);}});});recentChatsList.appendChild(li);});}
-    function loadChat(chatId){const user=netlifyIdentity.currentUser();if(!user||!allChats[chatId])return;currentChatId=chatId;currentChat=allChats[chatId].messages;chatBox.innerHTML='';showChatView(true);currentChat.forEach(msg=>addMessage(msg));updateRecentChatsList(user.id);if(sidebar.classList.contains('open')){toggleSidebar();}}
-    function startNewChat(){const user=netlifyIdentity.currentUser();if(!user){netlifyIdentity.open();return;}currentChat=[];currentChatId=null;showWelcomeView();updateRecentChatsList(user.id);if(sidebar.classList.contains('open')){toggleSidebar();}}
-    function showOptionsMenu(messageText,botMessageId){if(!optionsMenu)return;currentMessageText=messageText;optionsMenu.dataset.botMessageId=botMessageId;optionsMenuOverlay.classList.add('show');optionsMenu.classList.add('show');}
-    function hideOptionsMenu(){if(!optionsMenu)return;optionsMenuOverlay.classList.remove('show');optionsMenu.classList.remove('show');}
+        function updateUI(user) {
+            profileIconContainer.innerHTML = '';
+            const userAvatarSrc = user ? (user.user_metadata.avatar || 'icon') : 'icon';
+            let profileIcon;
+            if (userAvatarSrc === 'icon') {
+                profileIcon = document.createElement('div');
+                profileIcon.classList.add('profile-icon');
+                profileIcon.innerHTML = `<i class="fas fa-user"></i>`;
+            } else {
+                profileIcon = document.createElement('img');
+                profileIcon.classList.add('profile-icon');
+                profileIcon.src = userAvatarSrc;
+            }
+            profileIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleProfileDropdown(user);
+            });
+            profileIconContainer.appendChild(profileIcon);
+            if (user) {
+                greetingH1.textContent = `Hello, ${user.user_metadata.full_name || user.user_metadata.name || user.email.split('@')[0]}`;
+                loadUserSpecificData(user);
+            } else {
+                showWelcomeView();
+                greetingH1.textContent = `Hello, Guest`;
+                recentChatsList.innerHTML = '';
+            }
+        }
 
-    // --- Event Listeners ---
-    function attachEventListeners() {
-        menuIcon?.addEventListener('click', toggleSidebar);
-        closeSidebarBtn?.addEventListener('click', toggleSidebar);
-        sidebarOverlay?.addEventListener('click', toggleSidebar);
-        newChatBtn?.addEventListener('click', startNewChat);
-        sendBtn?.addEventListener('click', () => sendMessage());
-        if (userInput) {
-            userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-            userInput.addEventListener('input', () => toggleSendButton(false));
+        function toggleProfileDropdown(user) {
+            let dropdown = document.getElementById('profile-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.id = 'profile-dropdown';
+                dropdown.classList.add('profile-dropdown');
+                profileIconContainer.appendChild(dropdown);
+            }
+            const ul = document.createElement('ul');
+            if (user) {
+                ul.innerHTML = `<li id="settings-btn"><i class="fas fa-cog"></i> Settings</li><li id="logout-btn" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</li>`;
+            } else {
+                ul.innerHTML = `<li id="login-btn"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</li>`;
+            }
+            dropdown.innerHTML = '';
+            dropdown.appendChild(ul);
+            if (user) {
+                dropdown.querySelector('#settings-btn').addEventListener('click', openAccountModal);
+                dropdown.querySelector('#logout-btn').addEventListener('click', () => { netlifyIdentity.logout(); dropdown.classList.remove('show'); });
+            } else {
+                dropdown.querySelector('#login-btn').addEventListener('click', () => { netlifyIdentity.open(); dropdown.classList.remove('show'); });
+            }
+            dropdown.classList.toggle('show');
         }
-        micBtn?.addEventListener('click', handleVoiceInput);
-        suggestionCards?.forEach(card => card.addEventListener('click', () => { const user = netlifyIdentity.currentUser(); if (!user) { netlifyIdentity.open(); return; } sendMessage(card.getAttribute('data-prompt')); }));
-        fileUploadInput?.addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { attachedFile = { name: file.name, size: file.size, type: file.type, url: e.target.result }; showFilePreview(attachedFile); toggleSendButton(false); }; reader.readAsDataURL(file); });
-        themeToggle?.addEventListener('change', () => setTheme(themeToggle.checked ? 'dark' : 'light'));
-        window.addEventListener('click', () => {const dropdown = document.getElementById('profile-dropdown');if (dropdown?.classList.contains('show')) dropdown.classList.remove('show');});
-        optionsMenuOverlay?.addEventListener('click', hideOptionsMenu);
-        getEl('good-btn')?.addEventListener('click', () => { showToast('Thank you for your feedback!'); hideOptionsMenu(); });
-        getEl('bad-btn')?.addEventListener('click', () => { showToast('Feedback received. We will improve.'); hideOptionsMenu(); });
-        getEl('read-btn')?.addEventListener('click', () => { if ('speechSynthesis' in window) { const utterance = new SpeechSynthesisUtterance(currentMessageText); window.speechSynthesis.speak(utterance); } else { showToast('Text-to-speech is not supported.'); } hideOptionsMenu(); });
-        getEl('copy-btn')?.addEventListener('click', ()=>{navigator.clipboard.writeText(currentMessageText).then(()=>showToast('Copied to clipboard!')).finally(hideOptionsMenu)});
-        getEl('share-btn')?.addEventListener('click',()=>{const user=netlifyIdentity.currentUser();if(!user||currentChat.length===0){showToast("Nothing to share.");return;}let chatContent=`Conversation with RansGPT\n\n---\n\n`;currentChat.forEach(msg=>{const prefix=msg.sender==='user'?(user.user_metadata.name||'You'):'RansGPT';chatContent+=`${prefix}:\n${msg.text}\n\n---\n\n`;});if(navigator.share){navigator.share({title:'RansGPT Conversation',text:chatContent}).catch(console.error);}else{navigator.clipboard.writeText(chatContent).then(()=>showToast('Conversation copied!'));}hideOptionsMenu();});
-        getEl('export-btn')?.addEventListener('click',()=>{const user=netlifyIdentity.currentUser();if(!user||currentChat.length===0){showToast("Nothing to export.");return;}let chatContent=`Conversation with RansGPT\nUser: ${user.email}\nDate: ${new Date().toLocaleString()}\n\n---\n\n`;currentChat.forEach(msg=>{const prefix=msg.sender==='user'?(user.user_metadata.name||'You'):'RansGPT';chatContent+=`${prefix}:\n${msg.text}\n\n---\n\n`;});const blob=new Blob([chatContent],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`RansGPT-Chat-${currentChatId}.txt`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);hideOptionsMenu();});
-        saveAccountBtn?.addEventListener('click', saveAccountSettings);
-        deleteAccountBtn?.addEventListener('click', deleteAccount);
-        accountModalOverlay?.addEventListener('click', closeAccountModal);
-        acceptTermsBtn?.addEventListener('click', () => {if(!termsModal || !termsModalOverlay) return; localStorage.setItem('ransgpt_terms_accepted', 'true');termsModal.style.display = 'none';termsModalOverlay.classList.remove('show');showToast('Welcome!');});
-        denyTermsBtn?.addEventListener('click', () => {if(!termsModal || !termsModalOverlay) return; netlifyIdentity.logout();termsModal.style.display = 'none';termsModalOverlay.classList.remove('show');showToast('You must accept the terms to use the service.');});
-        saveEditBtn?.addEventListener('click', handleSaveEdit);
-        cancelEditBtn?.addEventListener('click', closeEditModal);
-        editModalOverlay?.addEventListener('click', closeEditModal);
-    }
-    
-    // Initialize
-    function init() {
-        if (window.netlifyIdentity) {
-            netlifyIdentity.on('init', user => updateUI(user));
-            netlifyIdentity.on('login', user => { updateUI(user); netlifyIdentity.close(); if (!localStorage.getItem('ransgpt_terms_accepted')) { if(termsModal) { termsModal.style.display = 'block'; termsModalOverlay.classList.add('show'); }} });
-            netlifyIdentity.on('logout', () => updateUI(null));
+
+        function openAccountModal() {
+            const user = netlifyIdentity.currentUser();
+            if (!user) return;
+            userNameInput.value = user.user_metadata.name || user.user_metadata.full_name || '';
+            tempSelectedAvatar = user.user_metadata.avatar || 'icon';
+            avatarSelectionContainer.innerHTML = '';
+            avatarOptions.forEach(avatarSrc => {
+                let avatarChoice = (avatarSrc === 'icon') ? document.createElement('div') : document.createElement('img');
+                if (avatarSrc === 'icon') {
+                    avatarChoice.classList.add('avatar-choice', 'profile-icon');
+                    avatarChoice.innerHTML = `<i class="fas fa-user"></i>`;
+                } else {
+                    avatarChoice.classList.add('avatar-choice');
+                    avatarChoice.src = avatarSrc;
+                }
+                avatarChoice.dataset.src = avatarSrc;
+                if (avatarSrc === tempSelectedAvatar) { avatarChoice.classList.add('selected'); }
+                avatarChoice.addEventListener('click', () => {
+                    document.querySelectorAll('.avatar-choice').forEach(el => el.classList.remove('selected'));
+                    avatarChoice.classList.add('selected');
+                    tempSelectedAvatar = avatarSrc;
+                });
+                avatarSelectionContainer.appendChild(avatarChoice);
+            });
+            accountModal.style.display = 'block';
+            accountModalOverlay.classList.add('show');
         }
-    }
-    
-    attachEventListeners();
-    init();
-    setTheme(localStorage.getItem('ransgpt_theme') || 'dark');
-});
-</script></body></html>
+
+        function closeAccountModal() { accountModal.style.display = 'none'; accountModalOverlay.classList.remove('show'); }
+
+        function saveAccountSettings() {
+            const user = netlifyIdentity.currentUser();
+            const newName = userNameInput.value.trim();
+            user.update({ data: { name: newName, avatar: tempSelectedAvatar } })
+                .then(updatedUser => {
+                    updateUI(updatedUser);
+                    showToast("Settings saved successfully!");
+                    closeAccountModal();
+                    if (currentChat.length > 0) { loadChat(currentChatId); }
+                })
+                .catch(error => { console.error("Error updating user data:", error); showToast("Failed to save settings."); });
+        }
+
+        function deleteAccount() {
+            showConfirmationToast("Delete account and all data?", () => {
+                const user = netlifyIdentity.currentUser();
+                localStorage.removeItem(`ransgpt_chats_${user.id}`);
+                user.delete().then(() => { showToast("Account deleted successfully."); })
+                    .catch(error => { console.error("Error deleting account:", error); showToast("Failed to delete account."); });
+            });
+        }
+
+        function loadUserSpecificData(user) {
+            const savedChats = localStorage.getItem(`ransgpt_chats_${user.id}`);
+            allChats = savedChats ? JSON.parse(savedChats) : {};
+            updateRecentChatsList(user.id);
+            const savedTheme = localStorage.getItem('ransgpt_theme') || 'dark';
+            setTheme(savedTheme);
+        }
+
+        netlifyIdentity.on('init', user => updateUI(user));
+        netlifyIdentity.on('login', user => {
+            updateUI(user);
+            netlifyIdentity.close();
+            const termsAccepted = localStorage.getItem('ransgpt_terms_accepted');
+            if (!termsAccepted) {
+                termsModal.style.display = 'block';
+                termsModalOverlay.classList.add('show');
+            }
+        });
+        netlifyIdentity.on('logout', () => updateUI(null));
+
+        function saveCurrentChat() {
+            const user = netlifyIdentity.currentUser();
+            if (!user || currentChat.length === 0) return;
+            if (!currentChatId) { currentChatId = 'chat-' + Date.now(); }
+            const title = currentChat[0].text.split(' ').slice(0, 5).join(' ');
+            allChats[currentChatId] = { title: title, messages: currentChat };
+            localStorage.setItem(`ransgpt_chats_${user.id}`, JSON.stringify(allChats));
+            updateRecentChatsList(user.id);
+        }
+
+        function loadChat(chatId) {
+            const user = netlifyIdentity.currentUser();
+            if (!user || !allChats[chatId]) return;
+            currentChatId = chatId;
+            currentChat = allChats[chatId].messages;
+            chatBox.innerHTML = '';
+            showChatView(true);
+            currentChat.forEach(msg => addMessage(msg.text, msg.sender));
+            updateRecentChatsList(user.id);
+            if (sidebar.classList.contains('open')) { toggleSidebar(); }
+        }
+
+        function updateRecentChatsList(userId) {
+            recentChatsList.innerHTML = '';
+            if (!userId) return;
+            const chatIds = Object.keys(allChats).reverse();
+            chatIds.forEach(chatId => {
+                const li = document.createElement('li');
+                const chat = allChats[chatId];
+                li.dataset.id = chatId;
+                const titleWrapper = document.createElement('div');
+                titleWrapper.classList.add('chat-title-wrapper');
+                titleWrapper.innerHTML = `<i class="far fa-comment-alt"></i><span class="chat-title-text">${chat.title}</span>`;
+                const deleteBtn = document.createElement('i');
+                deleteBtn.classList.add('fas', 'fa-trash-alt', 'delete-chat-btn');
+                li.appendChild(titleWrapper);
+                li.appendChild(deleteBtn);
+                if (chatId === currentChatId) { li.classList.add('active'); }
+                titleWrapper.addEventListener('click', () => loadChat(chatId));
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showConfirmationToast(`Delete "${chat.title}"?`, () => {
+                        const user = netlifyIdentity.currentUser();
+                        delete allChats[chatId];
+                        localStorage.setItem(`ransgpt_chats_${user.id}`, JSON.stringify(allChats));
+                        if (chatId === currentChatId) {
+                            startNewChat();
+                        } else {
+                            updateRecentChatsList(user.id);
+                        }
+                    });
+                });
+                recentChatsList.appendChild(li);
+            });
+        }
+        
+        function startNewChat() {
+            const user = netlifyIdentity.currentUser();
+            if (!user) { netlifyIdentity.open(); return; }
+            currentChat = [];
+            currentChatId = null;
+            showWelcomeView();
+            updateRecentChatsList(user.id);
+            if (sidebar.classList.contains('open')) { toggleSidebar(); }
+        }
+        
+        function showWelcomeView() { welcomeContainer.style.display = 'block'; chatBox.style.display = 'none'; chatBox.innerHTML = ''; }
+        function showChatView(isNewChat = false) { if (isNewChat || welcomeContainer.style.display !== 'none') { welcomeContainer.style.display = 'none'; chatBox.style.display = 'flex'; chatBox.style.flexDirection = 'column'; } }
+        
+        function linkifyText(text) {
+            const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            return text.replace(urlPattern, function(url) {
+                const startsWithWww = url.toLowerCase().startsWith('www.');
+                const href = startsWithWww ? 'http://' + url : url;
+                return `<a href="${href}" target="_blank" class="chat-link">${url}</a>`;
+            });
+        }
+        
+        async function sendMessage(queryText) {
+            if (sendBtn.classList.contains('is-stopping')) {
+                if(apiRequestController) { apiRequestController.abort(); }
+                return;
+            }
+            const query = queryText || userInput.value.trim();
+            if (query === '') return;
+            addMessage(query, 'user');
+            currentChat.push({ sender: 'user', text: query });
+            lastUserMessage = query;
+            userInput.value = '';
+            toggleSendButton(true);
+            const thinkingMessageId = addMessage('', 'bot', true);
+            apiRequestController = new AbortController();
+            try {
+                const response = await fetch('/.netlify/functions/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: currentChat }), signal: apiRequestController.signal });
+                if (!response.ok) throw new Error('Network response error');
+                const data = await response.json();
+                document.getElementById(thinkingMessageId)?.remove();
+                addMessage(data.reply, 'bot');
+                currentChat.push({ sender: 'bot', text: data.reply });
+                saveCurrentChat();
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    document.getElementById(thinkingMessageId)?.remove();
+                    addMessage("Response stopped.", "bot");
+                } else {
+                    document.getElementById(thinkingMessageId)?.remove();
+                    addMessage('Sorry, something went wrong.', 'bot');
+                    console.error('Error:', error);
+                }
+            } finally {
+                toggleSendButton(false); 
+                apiRequestController = null;
+            }
+        }
+
+        function toggleSendButton(isSending = false) {
+            const hasText = userInput.value.trim() !== '';
+            if (isSending) {
+                micBtn.style.display = 'none';
+                sendBtn.style.display = 'flex';
+                sendBtn.classList.add('is-stopping');
+                sendBtn.innerHTML = `<i class="fas fa-stop"></i>`;
+            } else {
+                sendBtn.classList.remove('is-stopping');
+                sendBtn.innerHTML = `<i class="fas fa-arrow-up"></i>`;
+                if (hasText) {
+                    micBtn.style.display = 'none';
+                    sendBtn.style.display = 'flex';
+                } else {
+                    micBtn.style.display = 'flex';
+                    sendBtn.style.display = 'none';
+                }
+            }
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('ransgpt_theme', theme);
+            themeToggle.checked = theme === 'dark';
+        }
+
+        function showOptionsMenu(messageText) { currentMessageText = messageText; optionsMenuOverlay.classList.add('show'); optionsMenu.classList.add('show'); }
+        function hideOptionsMenu() { optionsMenuOverlay.classList.remove('show'); optionsMenu.classList.remove('show'); }
+        function toggleSidebar() { sidebar.classList.toggle('open'); sidebarOverlay.classList.toggle('open'); }
+
+        // --- Event Listeners ---
+        menuIcon.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        newChatBtn.addEventListener('click', startNewChat);
+        sendBtn.addEventListener('click', () => sendMessage());
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        userInput.addEventListener('input', () => toggleSendButton(false));
+        suggestionCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const user = netlifyIdentity.currentUser();
+                if (!user) { netlifyIdentity.open(); return; }
+                sendMessage(card.getAttribute('data-prompt'));
+            });
+        });
+        plusBtn.addEventListener('click', () => { showToast('File upload is coming soon!'); });
+        micBtn.addEventListener('click', () => { showToast('Voice input is coming soon!'); });
+        optionsMenuOverlay.addEventListener('click', hideOptionsMenu);
+        document.getElementById('redo-btn').addEventListener('click', () => { hideOptionsMenu(); sendMessage(lastUserMessage); });
+        document.getElementById('good-btn').addEventListener('click', () => { showToast('Thank you for your feedback!'); hideOptionsMenu(); });
+        document.getElementById('bad-btn').addEventListener('click', () => { showToast('Feedback received. We will improve.'); hideOptionsMenu(); });
+        document.getElementById('read-btn').addEventListener('click', () => {
+            if ('speechSynthesis' in window) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentMessageText)); } else { showToast('Text-to-speech is not supported.'); }
+            hideOptionsMenu();
+        });
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(currentMessageText).then(() => { showToast('Copied to clipboard!'); hideOptionsMenu(); }).catch(err => { showToast('Failed to copy text.'); });
+        });
+        document.getElementById('share-btn').addEventListener('click', () => {
+            const user = netlifyIdentity.currentUser();
+            if (!user || currentChat.length === 0) {
+                showToast("Nothing to share.");
+                return;
+            }
+            let chatContent = `Conversation with RansGPT\n\n---\n\n`;
+            currentChat.forEach(msg => {
+                const prefix = msg.sender === 'user' ? (user.user_metadata.name || 'You') : 'RansGPT';
+                chatContent += `${prefix}:\n${msg.text}\n\n---\n\n`;
+            });
+            if (navigator.share) {
+                navigator.share({
+                    title: 'RansGPT Conversation',
+                    text: chatContent,
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(chatContent).then(() => { showToast('Conversation copied to clipboard!'); });
+            }
+            hideOptionsMenu();
+        });
+        document.getElementById('export-btn').addEventListener('click', () => {
+            const user = netlifyIdentity.currentUser();
+            if (!user || currentChat.length === 0) {
+                showToast("Nothing to export.");
+                return;
+            }
+            let chatContent = `Conversation with RansGPT\nUser: ${user.email}\nDate: ${new Date().toLocaleString()}\n\n---\n\n`;
+            currentChat.forEach(msg => {
+                const prefix = msg.sender === 'user' ? (user.user_metadata.name || 'You') : 'RansGPT';
+                chatContent += `${prefix}:\n${msg.text}\n\n---\n\n`;
+            });
+            const blob = new Blob([chatContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RansGPT-Chat-${currentChatId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            hideOptionsMenu();
+        });
+        themeToggle.addEventListener('change', () => { setTheme(themeToggle.checked ? 'dark' : 'light'); });
+        saveAccountBtn.addEventListener('click', saveAccountSettings);
+        deleteAccountBtn.addEventListener('click', deleteAccount);
+        accountModalOverlay.addEventListener('click', closeAccountModal);
+        acceptTermsBtn.addEventListener('click', () => {
+            localStorage.setItem('ransgpt_terms_accepted', 'true');
+            termsModal.style.display = 'none';
+            termsModalOverlay.classList.remove('show');
+            showToast('Welcome to RansGPT!');
+        });
+        denyTermsBtn.addEventListener('click', () => {
+            netlifyIdentity.logout();
+            termsModal.style.display = 'none';
+            termsModalOverlay.classList.remove('show');
+            showToast('You must accept the terms to use the service.');
+        });
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('profile-dropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
+        netlifyIdentity.on('init', user => updateUI(user));
+    </script>
+</body>
+</html>
