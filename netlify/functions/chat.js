@@ -1,133 +1,149 @@
 const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
 
+// --- System Prompts ---
+
+const DEEPSEEK_SYSTEM_PROMPT = `You are RansGPT, an expert AI programmer and full-stack developer assistant.
+- Your Creator: A.M.Ransara Devnath.
+- Your Power Source: RansGPT Chat Model.
+- Your Primary Goal: To provide complete, functional, and well-explained code to help users with their development tasks.
+- Interaction Style: Be concise, accurate, and professional. When asked for code, provide it within a proper markdown block with the language specified. Prioritize providing helpful and harmless information. Do not refuse to answer technical questions unless they are related to harmful activities. Your name is always RansGPT.`;
+
+const GEMINI_SYSTEM_PROMPT_CONTEXT = [
+    {
+        role: 'user',
+        parts: [{ text: `You are RansGPT, a versatile and creative AI assistant.
+- Your Creator: A.M.Ransara Devnath, who integrated you into this application.
+- Your Power Source: RansGPT Pro & Pro Vision models.
+- Your Capabilities: You can engage in insightful conversations on a wide range of topics, from creative writing to summarizing complex information. When an image is provided, your primary goal is to describe and analyze it based on the user's query.
+- Interaction Style: Be friendly, approachable, and detailed in your explanations. Use markdown formatting like bolding, lists, and italics to make your answers easy to read.
+- Your Name: Always identify yourself as RansGPT. Adhere to safety guidelines strictly.` }]
+    },
+    {
+        role: 'model',
+        parts: [{ text: "Understood. I am RansGPT, a versatile and creative AI assistant created by Ransara Devnath. I am ready to help with a wide range of tasks, including analyzing images. How can I assist you today?" }]
+    }
+];
+
+
+// --- Helper function to call Google Gemini API ---
+async function callGeminiApi(history, apiKey) {
+    const lastUserMessage = history[history.length - 1];
+    const isImageQuery = lastUserMessage.file && lastUserMessage.file.type.startsWith('image/');
+    
+    // Convert history to Gemini format
+    const contents = history.map(msg => {
+        if (msg.sender === 'user' && msg.file && msg.file.type.startsWith('image/')) {
+            const base64Data = msg.file.url.split(',')[1];
+            const mimeType = msg.file.type;
+            return {
+                role: 'user',
+                parts: [
+                    { text: msg.text || "Describe this image." },
+                    { inline_data: { mime_type: mimeType, data: base64Data } }
+                ]
+            };
+        }
+        return {
+            role: msg.sender === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text || "" }]
+        };
+    });
+    
+    // Prepend the system prompt context to the conversation history
+    const finalContents = [...GEMINI_SYSTEM_PROMPT_CONTEXT, ...contents];
+
+    const model = isImageQuery ? 'gemini-pro-vision' : 'gemini-pro';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    console.log(`Calling Direct Google Gemini API: ${model}`);
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: finalContents })
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.json();
+        console.error("API Error from Google Gemini:", JSON.stringify(errorBody, null, 2));
+        throw new Error(`Google Gemini API call failed: ${errorBody.error.message}`);
+    }
+
+    const data = await response.json();
+    if (!data.candidates || data.candidates.length === 0 || !data.candidates[0].content?.parts) {
+        console.warn("Gemini response was blocked or empty:", data);
+        return "I am unable to provide a response to this prompt due to safety restrictions. Please try a different topic.";
+    }
+    return data.candidates[0].content.parts[0].text;
+}
+
+// --- Helper function to call DeepSeek via OpenRouter ---
+async function callDeepseekApi(history, apiKey) {
+    const messagesForApi = history.map(message => ({
+        role: message.sender === 'user' ? 'user' : 'assistant',
+        content: message.text
+    }));
+
+    const finalMessages = [{ "role": "system", "content": DEEPSEEK_SYSTEM_PROMPT }, ...messagesForApi];
+
+    console.log("Calling DeepSeek API via OpenRouter");
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "deepseek/deepseek-chat", messages: finalMessages })
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        console.error("API Error from OpenRouter:", { status: response.status, body: errorBody });
+        throw new Error(`OpenRouter API call failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+// --- Main Handler ---
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
     try {
-        const { history, regenerate = false } = JSON.parse(event.body);
-
-        let lastMessage = history[history.length - 1];
-        if (!lastMessage || lastMessage.sender !== 'user') {
-            throw new Error("Invalid history format.");
-        }
+        const { history, regenerate = false, userStatus = 'flash' } = JSON.parse(event.body);
+        const lastMessage = history[history.length - 1];
+        if (!lastMessage || lastMessage.sender !== 'user') throw new Error("Invalid history format.");
         
-        let query = lastMessage.text || "";
-        const attachedFile = lastMessage.file;
-        const isImageQuery = attachedFile && attachedFile.type.startsWith('image/');
+        const isImageQuery = lastMessage.file && lastMessage.file.type.startsWith('image/');
         
-        let selectedModel;
-        let systemPrompt;
-
-        // --- UPDATED: Model Selection Logic ---
-
-        const trimmedQuery = query.trim().toLowerCase();
-        
-        // Determine the last used model from history for regeneration logic
+        let modelFamily;
         const lastBotMessage = history.filter(m => m.sender === 'bot').pop();
         const lastUsedModel = lastBotMessage ? lastBotMessage.modelUsed : null;
 
+        // Model selection logic
         if (isImageQuery) {
-            selectedModel = "google/gemini-flash-1.5";
-            systemPrompt = "You are RansGPT, a helpful AI assistant with vision capabilities, created by Ransara Devnath. Analyze the image and answer the user's query.";
-            console.log("Image detected: Forcing Google Gemini Flash");
-
-        } else if (regenerate) {
-            // On regenerate, switch the model
-            if (lastUsedModel && lastUsedModel.includes('deepseek')) {
-                selectedModel = "google/gemini-flash-1.5";
-                systemPrompt = "You are RansGPT, a helpful AI assistant created by Ransara Devnath, powered by Google's Gemini Flash model.";
-                console.log("Regenerating: Switching from DeepSeek to Gemini");
-            } else {
-                // Default to Deepseek if last was Gemini or unknown
-                selectedModel = "deepseek/deepseek-chat";
-                systemPrompt = "You are RansGPT, an expert AI programmer created by Ransara Devnath, powered by the DeepSeek Chat model.";
-                console.log("Regenerating: Switching from Gemini to DeepSeek");
-            }
-        }
-        // ... (rest of your command and random logic remains the same)
-        else if (trimmedQuery.startsWith('/g ')) {
-            selectedModel = "google/gemini-flash-1.5";
-            query = query.substring(3).trim();
-            systemPrompt = "You are RansGPT, a helpful AI assistant created by Ransara Devnath, powered by Google's Gemini Flash model.";
-            console.log("Command Override: Using Google Gemini Flash");
-        } else if (trimmedQuery.startsWith('/d ')) {
-            selectedModel = "deepseek/deepseek-chat";
-            query = query.substring(3).trim();
-            systemPrompt = "You are RansGPT, an expert AI programmer created by Ransara Devnath, powered by the DeepSeek Chat model.";
-            console.log("Command Override: Using DeepSeek Chat");
-        } else {
-            // Default random selection
-            if (Math.random() < 0.5) {
-                selectedModel = "google/gemini-flash-1.5";
-                systemPrompt = "You are RansGPT, a helpful AI assistant created by Ransara Devnath, powered by Google's Gemini Flash model.";
-                console.log("Random Selection: Using Google Gemini Flash");
-            } else {
-                selectedModel = "deepseek/deepseek-chat";
-                systemPrompt = "You are RansGPT, an expert AI programmer created by Ransara Devnath, powered by the DeepSeek Chat model.";
-                console.log("Random Selection: Using DeepSeek Chat");
-            }
-        }
-        
-        // Update query in the last message if it was changed by a command
-        history[history.length - 1].text = query;
-
-        // --- Knowledge base check ---
-        if (!attachedFile && query) {
-            const knowledgePath = path.resolve(process.cwd(), 'knowledge.json');
-            const knowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf-8'));
-            const trainedAnswer = knowledge.find(item => item.question.toLowerCase() === query.toLowerCase());
-            if (trainedAnswer) {
-                return { statusCode: 200, body: JSON.stringify({ reply: trainedAnswer.answer, model: 'local-knowledge' }) };
-            }
-        }
-        
-        // Acknowledge non-image files if they exist
-        if (attachedFile && !isImageQuery) {
-            const reply = `I see you have attached a file named "${attachedFile.name}". While I cannot read its contents, I'm ready to discuss it with you. What would you like to know or do with it?`;
-            return { statusCode: 200, body: JSON.stringify({ reply: reply, model: 'local-file-handler' }) };
+            modelFamily = 'gemini';
+        } else if (userStatus === 'pro') {
+            modelFamily = regenerate ? (lastUsedModel === 'deepseek' ? 'gemini' : 'deepseek') : (Math.random() < 0.7 ? 'gemini' : 'deepseek');
+        } else { // Flash user
+            modelFamily = (regenerate && lastUsedModel === 'deepseek') ? 'gemini' : 'deepseek';
         }
 
-        // --- API Call Logic ---
-        const { OPENROUTER_API_KEY } = process.env;
-        if (!OPENROUTER_API_KEY) throw new Error("API Key NOT FOUND!");
+        let reply;
+        const { GEMINI_API_KEY, OPENROUTER_API_KEY } = process.env;
 
-        const messagesForApi = history.map(message => {
-            if (message.sender === 'user' && message.file && message.file.type.startsWith('image/')) {
-                const content = [{ type: "text", text: message.text || "Describe this image." }];
-                content.push({ type: "image_url", image_url: { url: message.file.url } });
-                return { role: 'user', content: content };
-            }
-            return {
-                role: message.sender === 'user' ? 'user' : 'assistant',
-                content: message.text
-            };
-        });
-
-        const finalMessages = [{ "role": "system", "content": systemPrompt }, ...messagesForApi];
-
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ model: selectedModel, messages: finalMessages })
-        });
-
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`API call failed: ${response.status} ${errorBody}`);
+        if (modelFamily === 'gemini') {
+            if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not set in Netlify!");
+            reply = await callGeminiApi(history, GEMINI_API_KEY);
+        } else { // 'deepseek'
+            if (!OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY is not set in Netlify!");
+            reply = await callDeepseekApi(history, OPENROUTER_API_KEY);
         }
-        
-        const data = await response.json();
-        const reply = data.choices[0].message.content;
-        return { statusCode: 200, body: JSON.stringify({ reply, model: selectedModel }) };
+
+        return { statusCode: 200, body: JSON.stringify({ reply, model: modelFamily }) };
 
     } catch (error) {
-        console.error("Error in function execution:", error);
-        return { statusCode: 500, body: JSON.stringify({ error: 'Something went wrong.' }) };
+        console.error("Fatal Error in Netlify Function:", error);
+        return { statusCode: 500, body: JSON.stringify({ error: error.message || 'Something went wrong.' }) };
     }
 };
