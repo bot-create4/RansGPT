@@ -19,8 +19,8 @@ const GEMINI_SYSTEM_PROMPT_CONTEXT = [
 
 // --- Helper function to call Google Gemini API ---
 async function callGeminiApi(history, apiKey) {
-    // FIX: We use 'gemini-1.5-flash-latest' to avoid 404 errors with the base name.
-    const model = 'gemini-1.5-flash-latest';
+    // FIX: Switched to gemini-2.5-flash. This is currently the most stable model that supports vision (images) and is widely available without specific 1.5 restrictions.
+    const model = 'gemini-2.5-flash';
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     console.log(`Calling Google Gemini API: ${model}`);
@@ -28,11 +28,10 @@ async function callGeminiApi(history, apiKey) {
     // Map history to Gemini format
     const contents = history.map(msg => {
         if (msg.sender === 'user') {
-            const parts = [{ text: msg.text || " " }]; // Ensure text is never empty
+            const parts = [{ text: msg.text || " " }]; 
             
             // If message has an image
             if (msg.file && msg.file.url) {
-                // Extract base64 data safely
                 const base64Data = msg.file.url.split(',')[1];
                 const mimeType = msg.file.type || 'image/jpeg';
                 
@@ -68,7 +67,6 @@ async function callGeminiApi(history, apiKey) {
         if (!response.ok) {
             const errorBody = await response.json();
             console.error("API Error from Google Gemini:", JSON.stringify(errorBody, null, 2));
-            // Detailed error for logs
             throw new Error(`Google Gemini API error: ${errorBody.error?.message || response.statusText}`);
         }
 
@@ -88,7 +86,6 @@ async function callGeminiApi(history, apiKey) {
 
 // --- Main Handler ---
 exports.handler = async (event) => {
-    // Enable CORS for testing if needed, strictly POST for production
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -100,7 +97,7 @@ exports.handler = async (event) => {
 
         if (!GEMINI_API_KEY) {
             console.error("GEMINI_API_KEY missing in Netlify Env Vars");
-            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error." }) };
+            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error. (API Key missing)" }) };
         }
 
         if (!history || !Array.isArray(history)) {
