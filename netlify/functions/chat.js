@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 
 // --- System Prompts ---
-// RansGPT හැසිරෙන විදිහ මෙතනින් පාලනය කෙරේ.
 const GEMINI_SYSTEM_PROMPT_CONTEXT = [
     {
         role: 'user',
@@ -20,19 +19,20 @@ const GEMINI_SYSTEM_PROMPT_CONTEXT = [
 
 // --- Helper function to call Google Gemini API ---
 async function callGeminiApi(history, apiKey) {
-    // අපි පාවිච්චි කරන්නේ 'gemini-1.5-flash' මොඩල් එක. මේක පින්තූර සහ ටෙක්ස්ට් දෙකටම වේගවත්.
-    const model = 'gemini-1.5-flash';
+    // FIX: We use 'gemini-1.5-flash-latest' to avoid 404 errors with the base name.
+    const model = 'gemini-1.5-flash-latest';
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     console.log(`Calling Google Gemini API: ${model}`);
 
-    // Chat History එක Gemini API එකට ගැලපෙන විදිහට හදාගැනීම
+    // Map history to Gemini format
     const contents = history.map(msg => {
         if (msg.sender === 'user') {
-            const parts = [{ text: msg.text || " " }]; // Text එක හිස් නොවිය යුතුයි
+            const parts = [{ text: msg.text || " " }]; // Ensure text is never empty
             
-            // පින්තූරයක් තිබේ නම් එය Base64 ලෙස යැවීම
+            // If message has an image
             if (msg.file && msg.file.url) {
+                // Extract base64 data safely
                 const base64Data = msg.file.url.split(',')[1];
                 const mimeType = msg.file.type || 'image/jpeg';
                 
@@ -49,7 +49,7 @@ async function callGeminiApi(history, apiKey) {
         }
     });
 
-    // System Prompt සහ Chat History එකතු කිරීම
+    // Combine system prompt with conversation history
     const finalContents = [...GEMINI_SYSTEM_PROMPT_CONTEXT, ...contents];
 
     try {
@@ -59,7 +59,7 @@ async function callGeminiApi(history, apiKey) {
             body: JSON.stringify({ 
                 contents: finalContents,
                 generationConfig: {
-                    temperature: 0.7, // නිර්මාණශීලී බව පාලනය කිරීම
+                    temperature: 0.7,
                     maxOutputTokens: 2048
                 }
             })
@@ -68,6 +68,7 @@ async function callGeminiApi(history, apiKey) {
         if (!response.ok) {
             const errorBody = await response.json();
             console.error("API Error from Google Gemini:", JSON.stringify(errorBody, null, 2));
+            // Detailed error for logs
             throw new Error(`Google Gemini API error: ${errorBody.error?.message || response.statusText}`);
         }
 
@@ -80,14 +81,14 @@ async function callGeminiApi(history, apiKey) {
         return data.candidates[0].content.parts[0].text;
 
     } catch (error) {
-        console.error("Fetch Error:", error);
+        console.error("Fetch Error details:", error);
         throw error;
     }
 }
 
 // --- Main Handler ---
 exports.handler = async (event) => {
-    // POST request පමණක් භාරගනී
+    // Enable CORS for testing if needed, strictly POST for production
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -95,20 +96,17 @@ exports.handler = async (event) => {
     try {
         const body = JSON.parse(event.body);
         const history = body.history;
-        
-        // Netlify Environment Variables වලින් API Key එක ගැනීම
         const { GEMINI_API_KEY } = process.env;
 
         if (!GEMINI_API_KEY) {
-            console.error("GEMINI_API_KEY missing");
-            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error (API Key missing)." }) };
+            console.error("GEMINI_API_KEY missing in Netlify Env Vars");
+            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error." }) };
         }
 
         if (!history || !Array.isArray(history)) {
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid chat history." }) };
         }
 
-        // Gemini API එකට කෝල් කිරීම
         const reply = await callGeminiApi(history, GEMINI_API_KEY);
 
         return { 
