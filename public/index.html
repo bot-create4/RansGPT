@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#050505">
+    
+    <!-- SEO METADATA -->
+    <title>RansGPT V15 | Ultimate AI</title>
+    <meta name="description" content="RansGPT V15 - The Advanced AI Assistant created by A.M.Ransara Devnath. Powered by Gemini 2.5 Flash hybrid architecture.">
+    <meta name="keywords" content="RansGPT, AI Assistant, Sinhala AI, Ransara Devnath, Gemini Chatbot, Sri Lanka AI">
+    <meta name="author" content="A.M.Ransara Devnath">
+    
+    <!-- OPEN GRAPH -->
+    <meta property="og:title" content="RansGPT V15 | Ultimate AI">
+    <meta property="og:description" content="Experience the next-gen AI assistant with V3 Security and V15 UI.">
+    <meta property="og:image" content="https://i.ibb.co/Y4HP04ZW/100000604.jpg">
+    <meta property="og:type" content="website">
+
+    <!-- FAVICON -->
+    <link rel="icon" href="https://i.ibb.co/Y4HP04ZW/100000604.jpg" type="image/jpeg">
+
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+
+    <!-- EXTERNAL LIBRARIES -->
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- HTML Sanitizer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+    <!-- Code Syntax Highlighting (JS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Code Syntax Highlighting (CSS - Fixed Missing Link) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+
+    <!-- FIREBASE SDKs (Required for Auth & Database) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- CUSTOM STYLES & SCRIPTS -->
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <!-- NOTIFICATIONS -->
+    <div id="toast-box"></div>
+
+    <!-- MODAL OVERLAY (Login / Settings / Name Prompt) -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-content">
+            <!-- Content Injected via JS -->
+        </div>
+    </div>
+
+    <!-- SIDEBAR OVERLAY (Mobile) -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <!-- Brand -->
+        <div class="brand">
+            <img src="https://i.ibb.co/Y4HP04ZW/100000604.jpg" class="logo" alt="Logo">
+            <span style="font-weight:700; font-size: 16px;">RansGPT V15</span>
+            <button class="icon-btn" onclick="toggleSidebar()" style="margin-left:auto;">
+                <span class="material-symbols-rounded">close</span>
+            </button>
+        </div>
+
+        <!-- New Chat Button -->
+        <div style="padding: 15px;">
+            <button id="new-chat-btn" onclick="startNewChat()">
+                <span class="material-symbols-rounded">add</span> New Chat
+            </button>
+        </div>
+
+        <!-- History List -->
+        <div id="chat-history">
+            <!-- Dynamic History Items -->
+        </div>
+
+        <!-- User Panel (Bottom) -->
+        <div class="user-panel" onclick="openSettings()">
+            <img id="side-avatar" src="https://ui-avatars.com/api/?name=Guest" alt="User">
+            <div style="flex:1; overflow: hidden;">
+                <div id="side-name" style="font-weight:600; font-size:14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest</div>
+                <div id="side-status" style="font-size:11px; color:var(--text-muted);">Tap for Settings</div>
+            </div>
+            <span class="material-symbols-rounded" style="color:var(--text-muted);">settings</span>
+        </div>
+    </aside>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <button class="icon-btn" onclick="toggleSidebar()">
+            <span class="material-symbols-rounded">menu</span>
+        </button>
+        <div style="font-weight:700; font-size: 16px;">RansGPT</div>
+        <button class="icon-btn" onclick="toggleTheme()">
+            <span class="material-symbols-rounded" id="theme-icon">dark_mode</span>
+        </button>
+    </header>
+
+    <!-- CHAT AREA -->
+    <div id="chat-view">
+        <!-- Welcome Screen -->
+        <div id="welcome">
+            <img src="https://i.ibb.co/Y4HP04ZW/100000604.jpg" class="welcome-logo" alt="RansGPT">
+            <h2 class="welcome-title">Hello, <span id="welcome-name">Guest</span></h2>
+            <p style="color:var(--text-muted);">How can I help you today?</p>
+            
+            <div class="cards-grid">
+                <div class="suggestion-card" onclick="setPrompt('Analyze this code for bugs')">
+                    <span class="material-symbols-rounded" style="color:#FF3B30;">bug_report</span>
+                    <div style="font-weight:600; margin-top:8px;">Debug Code</div>
+                </div>
+                <div class="suggestion-card" onclick="setPrompt('Write a Python script for automation')">
+                    <span class="material-symbols-rounded" style="color:#34C759;">terminal</span>
+                    <div style="font-weight:600; margin-top:8px;">Write Code</div>
+                </div>
+                <div class="suggestion-card" onclick="setPrompt('Explain Quantum Physics simply')">
+                    <span class="material-symbols-rounded" style="color:#007AFF;">school</span>
+                    <div style="font-weight:600; margin-top:8px;">Learn Something</div>
+                </div>
+            </div>
+            
+            <div class="credits">
+                Created by <strong>A.M.Ransara Devnath</strong>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="msg-list"></div>
+    </div>
+
+    <!-- SCROLL ANCHOR -->
+    <div id="scroll-anchor" onclick="scrollToBottom()">
+        <span class="material-symbols-rounded">arrow_downward</span>
+    </div>
+
+    <!-- INPUT DOCK -->
+    <div class="input-dock">
+        <!-- Image Previews -->
+        <div class="img-preview-dock" id="img-previews"></div>
+        
+        <!-- Input Bar -->
+        <div class="input-bar">
+            <!-- File Input (Hidden) -->
+            <input type="file" id="file-in" multiple accept="image/*" hidden onchange="handleFileSelect(event)">
+            
+            <!-- Attachment Button -->
+            <button class="icon-btn" onclick="document.getElementById('file-in').click()">
+                <span class="material-symbols-rounded">add_photo_alternate</span>
+            </button>
+            
+            <!-- Text Input -->
+            <textarea id="msg-in" rows="1" placeholder="Message RansGPT..." 
+                oninput="adjustHeight(this)" 
+                onkeydown="handleEnter(event)"></textarea>
+            
+            <!-- Send / Stop Button -->
+            <button id="send-btn" class="send-btn" onclick="sendMsg()">
+                <span class="material-symbols-rounded" id="send-icon">arrow_upward</span>
+            </button>
+        </div>
+    </div>
+
+</body>
+  </html>
