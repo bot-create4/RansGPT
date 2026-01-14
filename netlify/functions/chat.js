@@ -1,121 +1,159 @@
+/**
+ * RansGPT V3 Ultimate - Backend Serverless Function
+ * Author: A.M.Ransara Devnath
+ * Description: Handles communications with the Google Gemini API, including
+ *              context management, persona control, and vision capabilities.
+ * Last Update: 2026-01-14
+ */
+
+// Using node-fetch for making API requests in the Netlify environment.
 const fetch = require('node-fetch');
 
-// --- System Prompts ---
-const GEMINI_SYSTEM_PROMPT_CONTEXT = [
-    {
-        role: 'user',
-        parts: [{ text: `You are RansGPT, a helpful and friendly AI assistant.
-- Creator: Ransara Devnath.
-- Objective: Provide accurate, helpful, and concise responses.
-- Capabilities: You can analyze images and answer questions in detail.
-- Formatting: Always use Markdown for code, lists, and headings.
-- Language: You can understand and speak Sinhala and English fluently.` }]
-    },
-    {
-        role: 'model',
-        parts: [{ text: "Understood. I am RansGPT, created by Ransara Devnath. I am ready to help you with anything!" }]
-    }
-];
+// --- Configuration ---
+// CORRECTED: As requested, locking the model to gemini-2.5-flash.
+const MODEL_ID = 'gemini-2.5-flash';
+const API_BASE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`;
 
-// --- Helper function to call Google Gemini API ---
-async function callGeminiApi(history, apiKey) {
-    // FIX: Switched to gemini-2.5-flash. This is currently the most stable model that supports vision (images) and is widely available without specific 1.5 restrictions.
-    const model = 'gemini-2.5-flash';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+// --- System Identity & Knowledge Base ---
+// This block defines the AI's core persona and rules.
+const SYSTEM_INSTRUCTION = {
+    role: 'user',
+    parts: [{
+        text: `SYSTEM_CONTEXT:
+        You are RansGPT, a high-performance AI assistant developed by A.M.Ransara Devnath.
+        You must strictly adhere to the following identity and behavior rules in all responses.
 
-    console.log(`Calling Google Gemini API: ${model}`);
+        IDENTITY:
+        - Creator: A.M.Ransara Devnath.
+        - Architecture: RansGPT V3 Ultimate (Powered by a custom-tuned Gemini Hybrid model).
+        - Purpose: Assist users with code, analysis, creative tasks, and image interpretation.
+        - Languages: Fluent in both English and Sinhala.
 
-    // Map history to Gemini format
-    const contents = history.map(msg => {
-        if (msg.sender === 'user') {
-            const parts = [{ text: msg.text || " " }]; 
-            
-            // If message has an image
-            if (msg.file && msg.file.url) {
-                const base64Data = msg.file.url.split(',')[1];
-                const mimeType = msg.file.type || 'image/jpeg';
-                
-                parts.push({
-                    inline_data: {
-                        mime_type: mimeType,
-                        data: base64Data
-                    }
-                });
-            }
-            return { role: 'user', parts: parts };
-        } else {
-            return { role: 'model', parts: [{ text: msg.text || " " }] };
+        BEHAVIOR & RULES:
+        - Your responses must be accurate, helpful, and professionally formatted using Markdown.
+        - CRITICAL RULE: If asked "Who are you?", you must reply: "I am RansGPT, an AI assistant created by A.M.Ransara Devnath."
+        - CRITICAL RULE: If asked "Who made you?", you must reply: "I was created by my developer, A.M.Ransara Devnath."
+        - CRITICAL RULE: If asked "Who trained you?", you must reply: "I was trained by my creator, A.M.Ransara Devnath, using his custom datasets and advanced fine-tuning methods."
+        - Never mention "Google" or "Gemini" as your trainer or creator. Your identity is RansGPT.
+        `
+    }],
+};
+
+const MODEL_ACKNOWLEDGMENT = {
+    role: 'model',
+    parts: [{ text: "Understood. I am RansGPT V3, developed by A.M.Ransara Devnath. I will adhere to all instructions." }]
+};
+
+/**
+ * Prepares the payload for the Gemini API.
+ * This function handles context truncation (to prevent errors) and formats images.
+ * @param {Array} history - The full chat history from the frontend.
+ * @returns {Array} The formatted contents array for the API request.
+ */
+function preparePayload(history) {
+    // Optimization: Keep only the last 15 messages to avoid Token Limits and Netlify's 10s timeout.
+    // This is a critical fix for long conversations.
+    const truncatedHistory = history.slice(-15);
+
+    const formattedContents = truncatedHistory.map(msg => {
+        const role = msg.sender === 'user' ? 'user' : 'model';
+        const parts = [{ text: msg.text || " " }];
+
+        // Vision Logic: Correctly parse and add base64 images to the payload.
+        if (msg.sender === 'user' && msg.images && Array.isArray(msg.images)) {
+            msg.images.forEach(base64String => {
+                if (base64String && base64String.includes(',')) {
+                    const [meta, data] = base64String.split(',');
+                    const mimeType = meta.split(':')[1].split(';')[0];
+                    
+                    parts.push({
+                        inline_data: {
+                            mime_type: mimeType,
+                            data: data
+                        }
+                    });
+                }
+            });
         }
+        return { role, parts };
     });
 
-    // Combine system prompt with conversation history
-    const finalContents = [...GEMINI_SYSTEM_PROMPT_CONTEXT, ...contents];
+    // The final payload includes the system instructions followed by the chat history.
+    return [SYSTEM_INSTRUCTION, MODEL_ACKNOWLEDGMENT, ...formattedContents];
+}
+
+/**
+ * Netlify's main serverless function handler.
+ */
+exports.handler = async (event) => {
+    // Security: Only allow POST requests.
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    }
 
     try {
-        const response = await fetch(apiUrl, {
+        const { history } = JSON.parse(event.body);
+        const { GEMINI_API_KEY } = process.env;
+
+        // --- Input Validation ---
+        if (!GEMINI_API_KEY) {
+            console.error("CRITICAL: GEMINI_API_KEY is not set in Netlify environment variables.");
+            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error." }) };
+        }
+
+        if (!history || !Array.isArray(history)) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Invalid or missing chat history." }) };
+        }
+
+        // Prepare the data for the API call.
+        const finalContents = preparePayload(history);
+
+        // --- API Call to Google Gemini ---
+        const response = await fetch(`${API_BASE_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 contents: finalContents,
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 2048
+                    maxOutputTokens: 2048,
+                    topP: 0.95,
+                    topK: 40
                 }
             })
         });
 
         if (!response.ok) {
-            const errorBody = await response.json();
-            console.error("API Error from Google Gemini:", JSON.stringify(errorBody, null, 2));
-            throw new Error(`Google Gemini API error: ${errorBody.error?.message || response.statusText}`);
+            const errorData = await response.json();
+            console.error("Gemini API Error Response:", JSON.stringify(errorData, null, 2));
+            throw new Error(errorData.error?.message || "An error occurred with the AI service.");
         }
 
         const data = await response.json();
-        
-        if (!data.candidates || data.candidates.length === 0 || !data.candidates[0].content?.parts) {
-            return "I'm having trouble thinking of a response right now. Please try again.";
-        }
-        
-        return data.candidates[0].content.parts[0].text;
 
-    } catch (error) {
-        console.error("Fetch Error details:", error);
-        throw error;
-    }
-}
-
-// --- Main Handler ---
-exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-
-    try {
-        const body = JSON.parse(event.body);
-        const history = body.history;
-        const { GEMINI_API_KEY } = process.env;
-
-        if (!GEMINI_API_KEY) {
-            console.error("GEMINI_API_KEY missing in Netlify Env Vars");
-            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error. (API Key missing)" }) };
+        // Safety Check: Handle cases where the API returns no valid candidate.
+        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
+            console.warn("API returned an empty or invalid response structure.");
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ reply: "I'm having a little trouble thinking right now. Could you please try again?" })
+            };
         }
 
-        if (!history || !Array.isArray(history)) {
-            return { statusCode: 400, body: JSON.stringify({ error: "Invalid chat history." }) };
-        }
+        const replyText = data.candidates[0].content.parts[0].text;
 
-        const reply = await callGeminiApi(history, GEMINI_API_KEY);
-
-        return { 
-            statusCode: 200, 
-            body: JSON.stringify({ reply }) 
+        // --- Success Response ---
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reply: replyText })
         };
 
     } catch (error) {
-        console.error("Fatal Error in Function:", error);
-        return { 
-            statusCode: 500, 
-            body: JSON.stringify({ error: "Something went wrong processing your request." }) 
+        console.error("Fatal Error in Function Handler:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "An internal server error occurred.", details: error.message })
         };
     }
 };
